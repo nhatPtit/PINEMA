@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinema</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <!-- THANH ĐIỀU HƯỚNG (NAVBAR) -->
+    <nav class="navbar" id="navbar">
+        <a href="#about" class="logo">🎬<span class="brand-text">Pine<span>ma</span></span></a>
+        <button class="mobile-toggle" id="mobileToggle" aria-label="Menu điều hướng">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#about" class="nav-link active">Trang Chủ</a></li>
+            <li><a href="#cinemas" class="nav-link">Cụm Rạp</a></li>
+            <li><a href="#promotions" class="nav-link">Khuyến Mãi</a></li>
+            <li><a href="#movies" class="nav-link">Phim Chiếu</a></li>
+        </ul>
+        <div class="nav-actions" id="navActions">
+            <a href="/login.html" class="btn btn-outline">Đăng Nhập</a>
+            <a href="/login.html?tab=register" class="btn btn-primary">Đăng Ký</a>
+        </div>
+    </nav>
+
+    <!-- SECTION 1: GIỚI THIỆU HỆ THỐNG RẠP PHIM (HERO & STATS) -->
+    <header class="hero-intro" id="about">
+        <div class="hero-overlay"></div>
+        <div class="container hero-container">
+            <div class="hero-badge">✨ HỆ THỐNG RẠP CHIẾU PHIM CHUẨN QUỐC TẾ</div>
+            <h1 class="hero-title">Pinema Cinema<br><span class="highlight-text">Đỉnh Cao Điện Ảnh Đa Chiều</span></h1>
+            <p class="hero-desc">
+                Chuỗi cụm rạp chiếu phim hiện đại hàng đầu với công nghệ màn chiếu <strong>IMAX Laser</strong>, âm thanh vòm <strong>Dolby Atmos</strong> sống động và quy trình đặt vé giữ chỗ trực tuyến tức thì.
+            </p>
+            <div class="hero-actions">
+                <a href="#cinemas" class="btn btn-primary btn-lg">🏛️ Khám Phá 10 Cụm Rạp</a>
+                <a href="#promotions" class="btn btn-gold btn-lg">🎁 Săn Voucher Khuyến Mãi</a>
+                <a href="#movies" class="btn btn-outline btn-lg">🎬 Xem Phim Đang Chiếu</a>
+            </div>
+
+            <!-- THỐNG KÊ TỔNG QUAN TỪ DATABASE -->
+            <div class="stats-strip">
+                <div class="stat-item">
+                    <div class="stat-number">10+</div>
+                    <div class="stat-label">Cụm Rạp Toàn Quốc</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">45+</div>
+                    <div class="stat-label">Phòng Chiếu IMAX & 3D</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">1.000+</div>
+                    <div class="stat-label">Ghế Ngồi Chuẩn VIP</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">10 Phút</div>
+                    <div class="stat-label">Giữ Chỗ An Toàn Tức Thì</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ĐIỂM NỔI BẬT CỦA HỆ THỐNG RẠP -->
+    <section class="features-section">
+        <div class="container">
+            <div class="section-header text-center">
+                <h2 class="section-title center-title">Trải Nghiệm Điện Ảnh Vượt Trội Tại Pinema</h2>
+                <p class="section-subtitle">Mỗi khoảnh khắc tại rạp chiếu là một hành trình cảm xúc thăng hoa</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📽️</div>
+                    <h3>Công Nghệ Chiếu IMAX Laser</h3>
+                    <p>Màn chiếu siêu lớn với độ tương phản vượt bậc và hình ảnh 4K chân thực, sắc nét đến từng chi tiết khung hình.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔊</div>
+                    <h3>Âm Thanh Vòm Dolby Atmos</h3>
+                    <p>Hệ thống loa đa kênh 360 độ di chuyển linh hoạt quanh khán phòng, cho bạn cảm giác hòa mình vào từng thước phim.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💺</div>
+                    <h3>Ghế Sweetbox & Ghế VIP</h3>
+                    <p>Ghế bọc da cao cấp êm ái, khoảng cách giữa các hàng rộng rãi, mang lại sự riêng tư và thoải mái tối đa cho khán giả.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Đặt Vé & Giữ Chỗ Tức Thì</h3>
+                    <p>Thuật toán khóa chỗ an toàn 10 phút, kiểm tra vị trí ghế thời gian thực và thanh toán bảo mật tuyệt đối.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: CỤM RẠP CÓ TRONG DATABASE -->
+    <section class="cinemas-section section-padding" id="cinemas">
+        <div class="container">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Hệ Thống Cụm Rạp Pinema</h2>
+                    <p class="section-subtitle">Danh sách các cụm rạp được trang bị phòng chiếu tiêu chuẩn quốc tế trong hệ thống</p>
+                </div>
+                <div class="cinema-search-wrap">
+                    <select id="cinemaProvinceSelect" class="cinema-province-select">
+                        <option value="all">📍 Tất cả tỉnh / thành</option>
+                    </select>
+                    <span id="cinemaCountBadge" class="count-badge">10 Cụm Rạp</span>
+                </div>
+            </div>
+
+            <div class="cinemas-grid" id="cinemaGrid">
+                <div class="loading-placeholder">Đang tải danh sách cụm rạp từ CSDL...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: KHUYẾN MÃI & VOUCHER KHẢ DỤNG TRONG DATABASE -->
+    <section class="promotions-section section-padding" id="promotions">
+        <div class="container">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Voucher & Khuyến Mãi Khả Dụng</h2>
+                    <p class="section-subtitle">Lấy mã giảm giá ngay để áp dụng giảm trực tiếp khi thanh toán đơn đặt vé</p>
+                </div>
+                <span id="couponCountBadge" class="count-badge gold-badge">Khả dụng</span>
+            </div>
+
+            <div class="coupons-grid" id="couponGrid">
+                <div class="loading-placeholder">Đang tải danh sách voucher khả dụng từ CSDL...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: PHIM ĐANG CHIẾU -->
+    <main class="container section-padding" id="movies">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Phim Đang Chiếu</h2>
+                <p class="section-subtitle">Lựa chọn bộ phim yêu thích và đặt vé đến cụm rạp Pinema gần nhất</p>
+            </div>
+            <div class="movie-search-wrap">
+                <input type="text" id="movieSearch" placeholder="🔍 Tìm phim theo tên..." class="search-input">
+                <span id="movieCountBadge" class="count-badge">0 Phim</span>
+            </div>
+        </div>
+
+        <div class="movie-filters-bar">
+            <div class="filters" id="genreFilters">
+                <button class="filter-btn active" data-filter="all">Tất Cả</button>
+                <button class="filter-btn" data-filter="Hành động">Hành Động</button>
+                <button class="filter-btn" data-filter="Hài">Hài</button>
+                <button class="filter-btn" data-filter="Kinh dị">Kinh Dị</button>
+                <button class="filter-btn" data-filter="Tình cảm">Tình Cảm</button>
+                <button class="filter-btn" data-filter="Tâm lý">Tâm Lý</button>
+                <button class="filter-btn" data-filter="Hoạt hình">Hoạt Hình</button>
+            </div>
+        </div>
+
+        <div class="movie-grid" id="movieGrid">
+            <div class="loading-placeholder">Đang tải danh sách phim từ CSDL...</div>
+        </div>
+    </main>
+
+    <!-- MODAL CHI TIẾT PHÒNG CHIẾU CỦA RẠP -->
+    <div class="modal" id="cinemaModal">
+        <div class="modal-overlay" id="modalOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalCinemaTitle">🏛️ Thông tin Cụm Rạp</h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-breadcrumb" id="modalBreadcrumb" style="display: none;">
+                <!-- Breadcrumb: Cụm rạp > Phòng chiếu > Suất chiếu -->
+            </div>
+            <div class="modal-body" id="modalCinemaBody">
+                <div class="loading-placeholder">Đang tải danh sách phòng chiếu...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST THÔNG BÁO SAO CHÉP MÃ -->
+    <div class="toast" id="toast"></div>
+
+    <!-- CHÂN TRANG (FOOTER) -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-col">
+                <h4>🎬 Pinema Cinema</h4>
+                <p>Hệ thống cụm rạp chiếu phim đẳng cấp hàng đầu với công nghệ IMAX Laser, Dolby Atmos và dịch vụ đặt vé giữ chỗ tức thì.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Điều Hướng Nhanh</h4>
+                <p><a href="#about">Trang Chủ & Giới Thiệu</a></p>
+                <p><a href="#cinemas">Cụm Rạp Pinema</a></p>
+                <p><a href="#promotions">Voucher Khuyến Mãi</a></p>
+                <p><a href="#movies">Phim Đang Chiếu</a></p>
+            </div>
+            <div class="footer-col">
+                <h4>Chính Sách & Hỗ Trợ</h4>
+                <p><a href="#">Điều khoản sử dụng</a></p>
+                <p><a href="#">Chính sách bảo mật</a></p>
+                <p><a href="#">Quy định đặt vé & giữ chỗ 10 phút</a></p>
+                <p><a href="#">Hướng dẫn áp dụng mã giảm giá</a></p>
+            </div>
+            <div class="footer-col">
+                <h4>Liên Hệ & Hỗ Trợ</h4>
+                <p>Hotline: 1900 6868 (8:00 - 23:00)</p>
+                <p>Email: support@pinema.vn</p>
+                <p>Trụ sở chính: Hà Nội, Việt Nam</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Pinema Cinema. Đồ án xây dựng Website Đặt Vé & Quản Lý Rạp Phim Trực Tuyến.</p>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinema</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .detail-wrapper {
+            padding: 2.5rem 0 4rem;
+        }
+
+        .back-nav {
+            margin-bottom: 1.5rem;
+        }
+
+        .back-nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
+        }
+
+        .back-nav a:hover {
+            color: var(--accent-color);
+        }
+
+        .detail-container {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 3rem;
+            background: var(--bg-secondary);
+            padding: 2.5rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .poster-col {
+            position: relative;
+        }
+
+        .detail-poster {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 2/3;
+            object-fit: cover;
+            border-radius: var(--radius);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: block;
+        }
+
+        .detail-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-badges {
+            display: flex;
+            gap: 0.6rem;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .detail-info h1 {
+            font-size: 2.4rem;
+            line-height: 1.25;
+            margin-bottom: 0.8rem;
+            color: var(--text-primary);
+        }
+
+        .rating-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(229, 9, 20, 0.15);
+            color: var(--accent-color);
+            padding: 0.35rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            border: 1px solid rgba(229, 9, 20, 0.3);
+            width: fit-content;
+            margin-bottom: 1.2rem;
+        }
+
+        .genres-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .meta-list {
+            list-style: none;
+            margin: 0 0 1.5rem 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .meta-list li {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .meta-list strong {
+            color: var(--text-primary);
+            min-width: 110px;
+        }
+
+        .movie-desc {
+            color: #d1d5db;
+            line-height: 1.8;
+            font-size: 0.98rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.2rem;
+            margin-top: auto;
+        }
+
+        /* TRAILER SECTION */
+        .trailer-box {
+            margin-top: 3.5rem;
+        }
+
+        .trailer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+
+        .trailer-video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            background: #000;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .trailer-video-wrapper iframe,
+        .trailer-video-wrapper video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        /* SHOWTIMES SECTION */
+        .showtimes-box {
+            margin-top: 3.5rem;
+        }
+
+        .showtimes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .showtime-filters {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .showtime-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .showtime-card {
+            background: var(--bg-card);
+            padding: 1.4rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .showtime-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-color);
+            box-shadow: 0 8px 24px rgba(229, 9, 20, 0.2);
+        }
+
+        .showtime-cinema {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--text-primary);
+            margin-bottom: 0.4rem;
+        }
+
+        .showtime-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.8rem;
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .tech-tag {
+            background: rgba(255, 180, 0, 0.15);
+            color: var(--gold);
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .showtime-time-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .showtime-time {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--accent-color);
+        }
+
+        .showtime-date {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .showtime-price {
+            font-size: 0.9rem;
+            color: #10b981;
+            font-weight: 600;
+            margin-top: 0.4rem;
+        }
+
+        /* REVIEWS SECTION */
+        .reviews-box {
+            margin-top: 3.5rem;
+        }
+
+        .review-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.2rem;
+            margin-top: 1.2rem;
+        }
+
+        .review-card {
+            background: var(--bg-card);
+            padding: 1.4rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.6rem;
+        }
+
+        .review-user {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .review-score {
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .review-date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.6rem;
+        }
+
+        .review-content {
+            font-size: 0.9rem;
+            color: #d1d5db;
+            line-height: 1.6;
+        }
+
+        .empty-box {
+            text-align: center;
+            padding: 3rem 1rem;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px dashed var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 860px) {
+            .detail-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                padding: 1.5rem;
+            }
+            .detail-poster {
+                max-width: 260px;
+                margin: 0 auto;
+            }
+            .detail-info h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- THANH ĐIỀU HƯỚNG -->
+    <nav class="navbar" id="navbar">
+        <a href="/" class="logo">🎬<span class="brand-text">Pine<span>ma</span></span></a>
+        <ul class="nav-links">
+            <li><a href="/" class="nav-link">Trang Chủ</a></li>
+            <li><a href="/#cinemas" class="nav-link">Cụm Rạp</a></li>
+            <li><a href="/#promotions" class="nav-link">Khuyến Mãi</a></li>
+            <li><a href="/#movies" class="nav-link">Phim Chiếu</a></li>
+        </ul>
+        <div class="nav-actions" id="navActions">
+            <a href="/login.html" class="btn btn-outline">Đăng Nhập</a>
+            <a href="/login.html?tab=register" class="btn btn-primary">Đăng Ký</a>
+        </div>
+    </nav>
+
+    <div class="container detail-wrapper">
+        <div class="back-nav">
+            <a href="/#movies">← Quay lại danh sách phim</a>
+        </div>
+
+        <!-- KHUNG THÔNG TIN PHIM -->
+        <div class="detail-container" id="movieDetailContainer">
+            <div style="text-align: center; grid-column: 1 / -1; padding: 4rem;">
+                <p style="color: var(--text-muted);">Đang tải thông tin phim từ hệ thống CSDL...</p>
+            </div>
+        </div>
+
+        <!-- KHUNG TRAILER PHIM -->
+        <div class="trailer-box" id="movieTrailerBox" style="display: none;">
+            <div class="trailer-header">
+                <h2 class="section-title" style="margin-bottom: 0;">🎬 Trailer Phim</h2>
+            </div>
+            <div class="trailer-video-wrapper" id="trailerVideoWrapper">
+                <!-- Video/Iframe trailer sẽ được nạp động từ CSDL -->
+            </div>
+        </div>
+
+        <!-- KHUNG LỊCH CHIẾU CỦA PHIM -->
+        <div class="showtimes-box">
+            <div class="showtimes-header">
+                <h2 class="section-title" style="margin-bottom: 0;">Lịch Chiếu & Suất Phim</h2>
+                <div class="showtime-filters">
+                    <select id="cinemaFilter" class="filter-select">
+                        <option value="all">Tất cả các rạp</option>
+                    </select>
+                </div>
+            </div>
+            <div id="showtimeList" class="showtime-grid">
+                <div class="empty-box" style="grid-column: 1 / -1;">Đang tải lịch chiếu...</div>
+            </div>
+        </div>
+
+        <!-- KHUNG ĐÁNH GIÁ TỪ KHÁCH HÀNG -->
+        <div class="reviews-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                <h2 class="section-title" style="margin-bottom: 0;">Đánh Giá Từ Khán Giả</h2>
+                <div id="reviewEligibilityStatus" style="font-size: 0.9rem; color: var(--text-muted);"></div>
+            </div>
+
+            <!-- FORM GỬI ĐÁNH GIÁ (NẾU ĐÃ MUA VÉ PHIM NÀY) -->
+            <div id="reviewFormCard" style="display: none; background: var(--bg-card); padding: 1.5rem; border-radius: var(--radius); border: 1px solid rgba(245, 158, 11, 0.4); margin-bottom: 2rem;">
+                <h4 style="margin-bottom: 0.8rem; color: var(--gold);">⭐ Bạn đã mua vé xem phim này! Hãy chia sẻ cảm nhận:</h4>
+                <form id="submitReviewForm" onsubmit="handleSendReview(event)">
+                    <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                        <label style="color: var(--text-muted); font-size: 0.9rem;">Chấm điểm:</label>
+                        <select id="reviewRatingSelect" class="form-control" style="width: auto; padding: 0.4rem 0.8rem; background: var(--bg-secondary); color: var(--gold); font-weight: 700; border-color: var(--border-color);">
+                            <option value="5">⭐⭐⭐⭐⭐ (5/5 Tuyệt vời)</option>
+                            <option value="4">⭐⭐⭐⭐ (4/5 Rất hay)</option>
+                            <option value="3">⭐⭐⭐ (3/5 Khá ổn)</option>
+                            <option value="2">⭐⭐ (2/5 Tạm được)</option>
+                            <option value="1">⭐ (1/5 Chưa hài lòng)</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <textarea id="reviewContentText" rows="3" class="form-control" placeholder="Cảm nhận của bạn về nội dung, diễn xuất, âm thanh, hình ảnh của phim..." required style="width: 100%; padding: 0.8rem; background: var(--bg-secondary); border: 1px solid var(--border-color); color: #fff; border-radius: 6px;"></textarea>
+                    </div>
+                    <button type="submit" id="btnSubmitReview" class="btn btn-primary" style="padding: 0.5rem 1.5rem;">
+                        Gửi Đánh Giá
+                    </button>
+                </form>
+            </div>
+
+            <div id="reviewsList" class="review-grid">
+                <div class="empty-box" style="grid-column: 1 / -1;">Đang tải đánh giá...</div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-col">
+                <a href="/" class="logo">🎬<span class="brand-text">Pine<span>ma</span></span></a>
+                <p>Hệ thống rạp chiếu phim hiện đại hàng đầu với công nghệ IMAX Laser & Dolby Atmos.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Khám Phá</h4>
+                <ul class="footer-links">
+                    <li><a href="/#movies">Phim Đang Chiếu</a></li>
+                    <li><a href="/#cinemas">Hệ Thống Cụm Rạp</a></li>
+                    <li><a href="/#promotions">Khuyến Mãi Thành Viên</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Hỗ Trợ</h4>
+                <p>Hotline: 1900 6868<br>Email: hotro@pinema.vn<br>Giờ làm việc: 08:00 - 24:00</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Pinema Cinema. Toàn bộ bản quyền thuộc hệ thống rạp RapPhim.</p>
+        </div>
+    </footer>
+
+    <script>
+        function parseDbDate(val) {
+            if (!val) return null;
+            const str = String(val).replace(/Z$/i, '').replace(' ', 'T');
+            const d = new Date(str);
+            return isNaN(d) ? new Date(val) : d;
+        }
+
+        let allShowtimes = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initUserState();
+            const urlParams = new URLSearchParams(window.location.search);
+            const movieId = urlParams.get('id') || 1;
+
+            loadMovieDetail(movieId);
+            loadShowtimes(movieId);
+            loadReviews(movieId);
+        });
+
+        // 1. Kiểm tra đăng nhập
+        function initUserState() {
+            const navActions = document.getElementById('navActions');
+            if (!navActions) return;
+
+            try {
+                const userJson = localStorage.getItem('user') || localStorage.getItem('currentUser');
+                if (userJson) {
+                    const user = JSON.parse(userJson);
+                    const displayName = user.hoTen || user.HoTen || user.tenKhachHang || user.email || 'Thành viên';
+                    const isStaff = user.role === 'staff' || !!user.maNhanVien;
+                    navActions.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;">
+                            ${isStaff 
+                                ? (() => {
+                                    const isClerk = user.roleType === 'clerk' || (user.chucVu && !user.chucVu.includes('Quản lý'));
+                                    return `<a href="${isClerk ? '/clerk.html' : '/staff.html'}" class="btn btn-sm" style="background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; font-weight: 600; text-decoration: none; padding: 0.4rem 0.8rem; border-radius: 6px;">${isClerk ? '🎟️ Bán Vé & Soát Vé' : '🛠️ Quản Trị Rạp'}</a>`;
+                                })()
+                                : `<a href="/my-tickets.html" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; color: var(--gold); border-color: rgba(245, 158, 11, 0.5);">🎟️ Vé Của Tôi</a>`
+                            }
+                            <span style="font-weight: 600; color: var(--accent-color);">👤 ${escapeHtml(displayName)}</span>
+                            <button id="btnLogout" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Đăng Xuất</button>
+                        </div>
+                    `;
+                    document.getElementById('btnLogout')?.addEventListener('click', () => {
+                        localStorage.removeItem('user');
+                        localStorage.removeItem('currentUser');
+                        window.location.reload();
+                    });
+                }
+            } catch (e) {
+                console.error('Lỗi user state:', e);
+            }
+        }
+
+        // 2. Tải thông tin phim
+        async function loadMovieDetail(movieId) {
+            const container = document.getElementById('movieDetailContainer');
+            try {
+                const res = await fetch(`/api/movies/${movieId}`);
+                const data = await res.json();
+
+                if (!data.success || !data.data) {
+                    container.innerHTML = `
+                        <div class="empty-box" style="grid-column: 1 / -1;">
+                            <h3>Không tìm thấy phim yêu cầu!</h3>
+                            <p style="margin-top: 0.8rem;"><a href="/#movies" class="btn btn-primary">Quay lại danh sách phim</a></p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const m = data.data;
+                document.title = 'Pinema';
+
+                const genres = Array.isArray(m.TheLoai) ? m.TheLoai : (m.TheLoaiString ? m.TheLoaiString.split(', ') : ['Chính kịch']);
+                const releaseDate = m.ThoiDiemKhoiChieu ? new Date(m.ThoiDiemKhoiChieu).toLocaleDateString('vi-VN') : 'Đang cập nhật';
+                const endDate = m.ThoiDiemKetThuc ? new Date(m.ThoiDiemKetThuc).toLocaleDateString('vi-VN') : 'Đang cập nhật';
+                const posterUrl = m.Poster || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500';
+
+                container.innerHTML = `
+                    <div class="poster-col">
+                        <img src="${escapeHtml(posterUrl)}" alt="${escapeHtml(m.TenPhim)}" class="detail-poster" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500'">
+                    </div>
+                    <div class="detail-info">
+                        <div class="header-badges">
+                            <span class="badge">ĐANG CHIẾU</span>
+                            <span class="badge" style="background: rgba(255,255,255,0.1); color: var(--text-primary); border: 1px solid var(--border-color);">T${m.DoTuoi || '13'}</span>
+                        </div>
+                        <h1>${escapeHtml(m.TenPhim)}</h1>
+                        
+                        <div class="genres-list">
+                            ${genres.map(g => `<span class="genre-tag">${escapeHtml(g)}</span>`).join('')}
+                        </div>
+
+                        <ul class="meta-list">
+                            <li><strong>Đạo diễn:</strong> <span>${escapeHtml(m.DaoDien || 'Đang cập nhật')}</span></li>
+                            <li><strong>Diễn viên:</strong> <span>${escapeHtml(m.DienVien || 'Đang cập nhật')}</span></li>
+                            <li><strong>Thời lượng:</strong> <span>${m.ThoiLuong || 120} phút</span></li>
+                            <li><strong>Độ tuổi:</strong> <span>Khán giả từ ${m.DoTuoi || 13} tuổi trở lên (T${m.DoTuoi || 13})</span></li>
+                            <li><strong>Khởi chiếu:</strong> <span>${releaseDate}</span></li>
+                        </ul>
+
+                        <div class="movie-desc">
+                            <strong>Nội dung phim:</strong><br>
+                            ${escapeHtml(m.MoTa || 'Bộ phim điện ảnh đặc sắc được trình chiếu tại toàn bộ cụm rạp Pinema trên toàn quốc với chất lượng hình ảnh và âm thanh sống động.')}
+                        </div>
+                    </div>
+                `;
+
+                // Nạp Trailer phim bên trên phần Lịch chiếu
+                renderTrailer(m.Trailer, m.TenPhim);
+            } catch (err) {
+                console.error('Lỗi nạp chi tiết phim:', err);
+                container.innerHTML = `<div class="empty-box" style="grid-column: 1 / -1; color: #ef4444;">Lỗi khi tải thông tin phim từ máy chủ!</div>`;
+            }
+        }
+
+        // 3. Hiển thị Trailer phim
+        function renderTrailer(trailerUrl, movieTitle) {
+            const trailerBox = document.getElementById('movieTrailerBox');
+            const videoWrapper = document.getElementById('trailerVideoWrapper');
+            if (!trailerBox || !videoWrapper) return;
+
+            if (!trailerUrl || !trailerUrl.trim()) {
+                trailerBox.style.display = 'none';
+                return;
+            }
+
+            const url = trailerUrl.trim();
+            // Xử lý liên kết YouTube (watch?v=, youtu.be/, embed/)
+            const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+
+            if (ytMatch && ytMatch[1]) {
+                const embedUrl = `https://www.youtube.com/embed/${ytMatch[1]}?rel=0`;
+                videoWrapper.innerHTML = `
+                    <iframe 
+                        src="${embedUrl}" 
+                        title="Trailer ${escapeHtml(movieTitle)}" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        allowfullscreen>
+                    </iframe>
+                `;
+                trailerBox.style.display = 'block';
+            } else if (url.match(/\.(mp4|webm|ogg)($|\?)/i)) {
+                videoWrapper.innerHTML = `
+                    <video controls preload="metadata" style="width: 100%; height: 100%; object-fit: contain;">
+                        <source src="${escapeHtml(url)}" type="video/mp4">
+                        Trình duyệt của bạn không hỗ trợ phát video này.
+                    </video>
+                `;
+                trailerBox.style.display = 'block';
+            } else {
+                videoWrapper.innerHTML = `
+                    <iframe 
+                        src="${escapeHtml(url)}" 
+                        title="Trailer ${escapeHtml(movieTitle)}" 
+                        allowfullscreen>
+                    </iframe>
+                `;
+                trailerBox.style.display = 'block';
+            }
+        }
+
+        // 4. Tải danh sách suất chiếu
+        async function loadShowtimes(movieId) {
+            const listEl = document.getElementById('showtimeList');
+            const cinemaFilter = document.getElementById('cinemaFilter');
+            try {
+                const res = await fetch(`/api/showtimes/movie/${movieId}`);
+                const data = await res.json();
+
+                // Lọc bỏ hoàn toàn các suất chiếu đã hết hạn trong quá khứ
+                const now = new Date();
+                const rawShowtimes = (data.success && Array.isArray(data.data)) ? data.data : [];
+                allShowtimes = rawShowtimes.filter(s => {
+                    const d = parseDbDate(s.ThoiGianBatDau);
+                    return d && d > now;
+                });
+
+                if (allShowtimes.length === 0) {
+                    cinemaFilter.style.display = 'none';
+                    listEl.innerHTML = `
+                        <div class="empty-box" style="grid-column: 1 / -1; padding: 2.5rem 1.5rem; text-align: center;">
+                            <div style="font-size: 2.5rem; margin-bottom: 0.8rem;">⏳</div>
+                            <h3 style="margin-bottom: 0.5rem; color: var(--text-primary);">Chưa có lịch chiếu sắp tới cho phim này</h3>
+                            <p style="color: var(--text-muted); margin-bottom: 1.2rem;">Các suất chiếu trước đó đã kết thúc. Vui lòng quay lại sau hoặc khám phá các phim đang có suất chiếu hôm nay!</p>
+                            <a href="/#movies" class="btn btn-primary" style="display: inline-block;">🎬 Khám Phá Phim Đang Chiếu</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                cinemaFilter.style.display = 'inline-block';
+
+                // Cập nhật bộ lọc rạp
+                const cinemas = [...new Set(allShowtimes.map(s => s.TenRap))];
+                cinemaFilter.innerHTML = `<option value="all">Tất cả cụm rạp (${cinemas.length})</option>` + 
+                    cinemas.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+
+                cinemaFilter.addEventListener('change', (e) => {
+                    const selected = e.target.value;
+                    const filtered = selected === 'all' ? allShowtimes : allShowtimes.filter(s => s.TenRap === selected);
+                    renderShowtimes(filtered);
+                });
+
+                renderShowtimes(allShowtimes);
+            } catch (err) {
+                console.error('Lỗi nạp suất chiếu:', err);
+                listEl.innerHTML = `<div class="empty-box" style="grid-column: 1 / -1; color: #ef4444;">Không thể kết nối máy chủ để lấy lịch chiếu!</div>`;
+            }
+        }
+
+        function renderShowtimes(showtimes) {
+            const listEl = document.getElementById('showtimeList');
+            const now = new Date();
+            const validShowtimes = showtimes.filter(s => {
+                const d = parseDbDate(s.ThoiGianBatDau);
+                return d && d > now;
+            });
+
+            if (validShowtimes.length === 0) {
+                listEl.innerHTML = `<div class="empty-box" style="grid-column: 1 / -1;">Không tìm thấy suất chiếu nào phù hợp.</div>`;
+                return;
+            }
+
+            listEl.innerHTML = validShowtimes.map(st => {
+                const startTime = parseDbDate(st.ThoiGianBatDau);
+                const timeStr = (startTime && !isNaN(startTime)) 
+                    ? startTime.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false }) 
+                    : '19:00';
+                const dateStr = (startTime && !isNaN(startTime)) 
+                    ? startTime.toLocaleDateString('vi-VN') 
+                    : '';
+                const basePrice = Number(st.GiaVeCoBan || 80000).toLocaleString('vi-VN');
+
+                return `
+                    <div class="showtime-card">
+                        <div>
+                            <div class="showtime-cinema">${escapeHtml(st.TenRap)}</div>
+                            <div class="showtime-meta">
+                                <span>🏛️ ${escapeHtml(st.TenPhong || 'Phòng chiếu')}</span>
+                                ${st.CongNgheHoTro ? `<span class="tech-tag">${escapeHtml(st.CongNgheHoTro)}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="showtime-price">Giá vé từ: ${basePrice}đ</div>
+                        <div class="showtime-time-row">
+                            <div>
+                                <div class="showtime-time">${timeStr}</div>
+                                <div class="showtime-date">${dateStr}</div>
+                            </div>
+                            <a href="/booking.html?showtimeId=${st.MaSuat}" class="btn btn-primary" style="padding: 0.5rem 1.2rem; font-size: 0.9rem;">Đặt Vé</a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        let eligibleInvoiceId = null;
+
+        // 4. Tải đánh giá của khách hàng và kiểm tra quyền gửi nhận xét
+        async function loadReviews(movieId) {
+            const listEl = document.getElementById('reviewsList');
+            checkReviewEligibility(movieId);
+
+            try {
+                const res = await fetch(`/api/reviews/movie/${movieId}`);
+                const data = await res.json();
+
+                if (!data.success || !data.data || data.data.length === 0) {
+                    listEl.innerHTML = `<div class="empty-box" style="grid-column: 1 / -1;">Chưa có đánh giá nào cho phim này. Hãy là người đầu tiên trải nghiệm và để lại nhận xét!</div>`;
+                    return;
+                }
+
+                listEl.innerHTML = data.data.map(r => {
+                    const stars = '⭐'.repeat(Math.min(Math.max(r.Diem, 1), 5));
+                    return `
+                        <div class="review-card">
+                            <div class="review-header">
+                                <span class="review-user">👤 ${escapeHtml(r.TenKhachHang || 'Khán giả')}</span>
+                                <span class="review-score">${stars} (${r.Diem}/5 sao)</span>
+                            </div>
+                            <div class="review-content">
+                                "${escapeHtml(r.NoiDung || 'Phim rất đáng xem!')}"
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error('Lỗi nạp đánh giá:', err);
+                listEl.innerHTML = `<div class="empty-box" style="grid-column: 1 / -1;">Không thể tải đánh giá vào lúc này.</div>`;
+            }
+        }
+
+        // Kiểm tra khách hàng đã xem phim này chưa để hiện form đánh giá
+        async function checkReviewEligibility(movieId) {
+            const formCard = document.getElementById('reviewFormCard');
+            const statusEl = document.getElementById('reviewEligibilityStatus');
+            const userStr = localStorage.getItem('user');
+
+            if (!userStr) {
+                if (statusEl) statusEl.innerHTML = '<span>🔒 <a href="/login.html" style="color: var(--accent-color);">Đăng nhập</a> và mua vé để để lại đánh giá</span>';
+                if (formCard) formCard.style.display = 'none';
+                return;
+            }
+
+            try {
+                const user = JSON.parse(userStr);
+                const res = await fetch(`/api/reviews/check-eligibility?customerId=${user.maKhachHang}&movieId=${movieId}`);
+                const data = await res.json();
+
+                if (data.success && data.canReview) {
+                    eligibleInvoiceId = data.maHoaDon;
+                    if (formCard) formCard.style.display = 'block';
+                    if (statusEl) statusEl.innerHTML = '<span style="color: #22c55e;">✅ Bạn đủ điều kiện đánh giá phim</span>';
+
+                    // Nếu đã từng đánh giá, điền lại
+                    if (data.alreadyReviewed && data.existingReview) {
+                        document.getElementById('reviewRatingSelect').value = data.existingReview.Diem;
+                        document.getElementById('reviewContentText').value = data.existingReview.NoiDung;
+                        document.getElementById('btnSubmitReview').textContent = 'Cập Nhật Đánh Giá';
+                    }
+                } else {
+                    if (formCard) formCard.style.display = 'none';
+                    if (statusEl) statusEl.innerHTML = '<span>ℹ️ Cần mua vé xem phim này để gửi nhận xét</span>';
+                }
+            } catch (e) {
+                console.error('Lỗi check eligibility:', e);
+            }
+        }
+
+        // Gửi nhận xét đánh giá
+        async function handleSendReview(e) {
+            e.preventDefault();
+            const userStr = localStorage.getItem('user');
+            if (!userStr || !eligibleInvoiceId) return alert('Bạn không đủ điều kiện đánh giá phim này!');
+
+            const user = JSON.parse(userStr);
+            const diem = document.getElementById('reviewRatingSelect').value;
+            const noiDung = document.getElementById('reviewContentText').value.trim();
+            const btn = document.getElementById('btnSubmitReview');
+
+            if (!noiDung) return alert('Vui lòng nhập nội dung nhận xét!');
+
+            btn.disabled = true;
+            btn.textContent = 'Đang gửi...';
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const movieId = urlParams.get('id') || 1;
+
+            try {
+                const res = await fetch('/api/reviews', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        maKhachHang: user.maKhachHang,
+                        maHoaDon: eligibleInvoiceId,
+                        doiTuong: 'Phim',
+                        diem: parseInt(diem),
+                        noiDung: noiDung
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    alert('🎉 ' + data.message);
+                    loadReviews(movieId);
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            } catch (err) {
+                alert('Không thể kết nối máy chủ để gửi đánh giá!');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Gửi Đánh Giá';
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinema</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .page-header {
+            padding: 2.5rem 0 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .tickets-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.8rem;
+            margin-bottom: 4rem;
+        }
+
+        .ticket-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 180px 1fr 260px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .ticket-card:hover {
+            border-color: rgba(229, 9, 20, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .ticket-poster-wrap {
+            position: relative;
+            background: #000;
+        }
+
+        .ticket-poster {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .ticket-main {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .ticket-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .ticket-code {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-family: monospace;
+            letter-spacing: 0.5px;
+        }
+
+        .ticket-movie-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 0.4rem;
+        }
+
+        .ticket-meta-badges {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .badge-age {
+            background: rgba(229, 9, 20, 0.15);
+            color: var(--accent-color);
+            border: 1px solid rgba(229, 9, 20, 0.3);
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .badge-tech {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--gold);
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .ticket-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .ticket-details-grid strong {
+            color: var(--text-primary);
+        }
+
+        .ticket-seats-highlight {
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        .ticket-sidebar {
+            background: rgba(15, 23, 42, 0.6);
+            border-left: 1px dashed var(--border-color);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            text-align: right;
+        }
+
+        .ticket-status-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            align-self: flex-end;
+            margin-bottom: 0.8rem;
+        }
+
+        .status-paid {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--gold);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .status-cancelled {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .ticket-price-block {
+            margin: 0.8rem 0;
+        }
+
+        .ticket-total-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .ticket-total-value {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .ticket-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        @media (max-width: 900px) {
+            .ticket-card {
+                grid-template-columns: 1fr;
+            }
+            .ticket-poster-wrap {
+                height: 220px;
+            }
+            .ticket-sidebar {
+                border-left: none;
+                border-top: 1px dashed var(--border-color);
+                text-align: left;
+            }
+            .ticket-status-badge {
+                align-self: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- THANH ĐIỀU HƯỚNG -->
+    <nav class="navbar" id="navbar">
+        <a href="/" class="logo">🎬<span class="brand-text">Pine<span>ma</span></span></a>
+        <ul class="nav-links">
+            <li><a href="/" class="nav-link">Trang Chủ</a></li>
+            <li><a href="/#cinemas" class="nav-link">Cụm Rạp</a></li>
+            <li><a href="/#promotions" class="nav-link">Khuyến Mãi</a></li>
+            <li><a href="/#movies" class="nav-link">Phim Chiếu</a></li>
+        </ul>
+        <div class="nav-actions" id="navActions">
+            <a href="/login.html" class="btn btn-outline">Đăng Nhập</a>
+            <a href="/login.html?tab=register" class="btn btn-primary">Đăng Ký</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 class="section-title">Vé & Hóa Đơn Của Tôi</h1>
+                    <p class="section-subtitle">Danh sách các vé xem phim bạn đã đặt và giữ chỗ trong hệ thống rạp Pinema</p>
+                </div>
+                <div>
+                    <a href="/#movies" class="btn btn-primary">🎬 Đặt Thêm Vé Phim</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- DANH SÁCH VÉ -->
+        <div id="ticketsList" class="tickets-container">
+            <div style="text-align: center; padding: 4rem; color: var(--text-muted);">
+                Đang tải lịch sử đặt vé từ hệ thống...
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ĐÁNH GIÁ PHIM TRỰC TIẾP TỪ VÉ -->
+    <div class="modal" id="reviewModal">
+        <div class="modal-overlay" onclick="closeReviewModal()"></div>
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 id="modalReviewTitle">⭐ Đánh Giá Phim</h3>
+                <button class="modal-close" onclick="closeReviewModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 1.5rem;">
+                <form id="modalReviewForm" onsubmit="submitModalReview(event)">
+                    <input type="hidden" id="modalReviewInvoiceId">
+                    <input type="hidden" id="modalReviewMovieId">
+
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.4rem;">Chấm điểm:</label>
+                        <select id="modalReviewScore" class="form-control" style="width: 100%; padding: 0.6rem; background: var(--bg-secondary); color: var(--gold); font-weight: 700; border-color: var(--border-color);">
+                            <option value="5">⭐⭐⭐⭐⭐ (5/5 Tuyệt vời)</option>
+                            <option value="4">⭐⭐⭐⭐ (4/5 Rất hay)</option>
+                            <option value="3">⭐⭐⭐ (3/5 Khá ổn)</option>
+                            <option value="2">⭐⭐ (2/5 Tạm được)</option>
+                            <option value="1">⭐ (1/5 Chưa hài lòng)</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: 1.2rem;">
+                        <label style="display: block; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.4rem;">Nhận xét của bạn:</label>
+                        <textarea id="modalReviewContent" rows="4" class="form-control" placeholder="Cảm nhận của bạn về diễn xuất, kịch bản, âm thanh..." required style="width: 100%; padding: 0.8rem; background: var(--bg-secondary); border: 1px solid var(--border-color); color: #fff; border-radius: 6px;"></textarea>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 0.8rem;">
+                        <button type="button" class="btn btn-outline" onclick="closeReviewModal()">Hủy</button>
+                        <button type="submit" id="btnSaveModalReview" class="btn btn-primary">Gửi Đánh Giá</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-bottom">
+            <p>&copy; 2026 Pinema Cinema. Khung tra cứu vé & hóa đơn khách hàng.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Chuyển đổi datetime từ DB (loại bỏ Z để trình duyệt không cộng bù lệch múi giờ)
+        function parseDbDate(val) {
+            if (!val) return null;
+            const str = String(val).replace(/Z$/i, '').replace(' ', 'T');
+            const d = new Date(str);
+            return isNaN(d) ? new Date(val) : d;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initUserState();
+            loadTickets();
+        });
+
+        function initUserState() {
+            const navActions = document.getElementById('navActions');
+            const userStr = localStorage.getItem('user');
+
+            if (!userStr) {
+                alert('⚠️ Bạn chưa đăng nhập! Vui lòng đăng nhập để xem lịch sử vé.');
+                window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.pathname);
+                return;
+            }
+
+            try {
+                const user = JSON.parse(userStr);
+                const displayName = user.hoTen || user.HoTen || user.email || 'Khách hàng';
+                navActions.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;">
+                        <span style="font-weight: 600; color: var(--gold);">👤 ${escapeHtml(displayName)}</span>
+                        <button id="btnLogout" class="btn btn-outline btn-sm">Đăng Xuất</button>
+                    </div>
+                `;
+                document.getElementById('btnLogout')?.addEventListener('click', () => {
+                    localStorage.removeItem('user');
+                    window.location.href = '/';
+                });
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function loadTickets() {
+            const listEl = document.getElementById('ticketsList');
+            const userStr = localStorage.getItem('user');
+            if (!userStr) return;
+
+            const user = JSON.parse(userStr);
+
+            try {
+                const res = await fetch(`/api/bookings/history/${user.maKhachHang}`);
+                const data = await res.json();
+
+                if (!data.success || !data.data || data.data.length === 0) {
+                    listEl.innerHTML = `
+                        <div style="text-align: center; padding: 4rem 1rem; background: var(--bg-card); border-radius: var(--radius); border: 1px dashed var(--border-color);">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🎟️</div>
+                            <h3 style="margin-bottom: 0.5rem;">Bạn chưa có vé xem phim nào!</h3>
+                            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Hãy khám phá các siêu phẩm điện ảnh đang chiếu và đặt vé chọn chỗ ngay hôm nay.</p>
+                            <a href="/#movies" class="btn btn-primary">🎬 Xem Phim Đang Chiếu</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                listEl.innerHTML = data.data.map(t => {
+                    const poster = t.Poster || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500';
+                    const startTime = parseDbDate(t.GioBatDau);
+                    const timeStr = (startTime && !isNaN(startTime)) ? startTime.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false }) : '19:00';
+                    const dateStr = (startTime && !isNaN(startTime)) ? startTime.toLocaleDateString('vi-VN') : '';
+                    const bookingTime = parseDbDate(t.ThoiDiemLap);
+                    const bookingDate = (bookingTime && !isNaN(bookingTime)) ? bookingTime.toLocaleString('vi-VN', { 
+                        day: '2-digit', month: '2-digit', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit', hour12: false 
+                    }) : '';
+                    
+                    const isPaid = t.TrangThai === 'Đã thanh toán';
+                    const isCancelled = t.TrangThai === 'Đã hủy';
+                    const statusClass = isPaid ? 'status-paid' : (isCancelled ? 'status-cancelled' : 'status-pending');
+                    const statusText = t.TrangThai || 'Đã thanh toán';
+
+                    return `
+                        <div class="ticket-card">
+                            <div class="ticket-poster-wrap">
+                                <img src="${escapeHtml(poster)}" alt="${escapeHtml(t.TenPhim)}" class="ticket-poster" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500'">
+                            </div>
+                            <div class="ticket-main">
+                                <div>
+                                    <div class="ticket-header-row">
+                                        <div class="ticket-code">MÃ ĐƠN: <strong>#HD${t.MaHoaDon}</strong> • Đặt lúc: ${bookingDate}</div>
+                                    </div>
+                                    <h3 class="ticket-movie-title">${escapeHtml(t.TenPhim)}</h3>
+                                    <div class="ticket-meta-badges">
+                                        <span class="badge-age">T${t.DoTuoi || '13'}</span>
+                                        <span class="badge-tech">${escapeHtml(t.CongNgheHoTro || '2D')}</span>
+                                        <span style="font-size: 0.8rem; color: var(--text-muted);">⏱️ ${t.ThoiLuong || 120} phút</span>
+                                    </div>
+                                    <div class="ticket-details-grid">
+                                        <div>🏛️ Cụm Rạp: <strong>${escapeHtml(t.TenRap)}</strong></div>
+                                        <div>🚪 Phòng chiếu: <strong>${escapeHtml(t.TenPhong)}</strong></div>
+                                        <div>⏰ Suất chiếu: <strong>${timeStr} (${dateStr})</strong></div>
+                                        <div>💺 Số vé: <strong>${t.SoLuongVe} vé</strong></div>
+                                        <div style="grid-column: 1 / -1; margin-top: 0.4rem;">
+                                            Vị trí ghế ngồi: <span class="ticket-seats-highlight">${escapeHtml(t.DanhSachGheText || 'Đang cập nhật')}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ticket-sidebar">
+                                <div>
+                                    <span class="ticket-status-badge ${statusClass}">● ${escapeHtml(statusText)}</span>
+                                    <div class="ticket-price-block">
+                                        <div class="ticket-total-label">Tổng thanh toán</div>
+                                        <div class="ticket-total-value">${Number(t.ThanhToan || t.TongTienVe || 0).toLocaleString('vi-VN')}đ</div>
+                                        ${t.TienGiam > 0 ? `<div style="font-size: 0.75rem; color: #22c55e;">(Đã giảm ${Number(t.TienGiam).toLocaleString('vi-VN')}đ ${t.MaCoupon ? `mã ${t.MaCoupon}` : ''})</div>` : ''}
+                                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.3rem;">PTTT: ${escapeHtml(t.PhuongThucThanhToan || 'Chuyển khoản')}</div>
+                                    </div>
+                                </div>
+                                <div class="ticket-actions">
+                                    ${t.DaDanhGiaPhim 
+                                        ? `<button class="btn btn-outline btn-sm" onclick="openReviewModal(${t.MaHoaDon}, ${t.MaPhim}, '${escapeHtml(t.TenPhim)}', true)" style="color: var(--gold); border-color: rgba(245,158,11,0.5);">⭐ Xem Đánh Giá</button>`
+                                        : `<button class="btn btn-outline btn-sm" onclick="openReviewModal(${t.MaHoaDon}, ${t.MaPhim}, '${escapeHtml(t.TenPhim)}', false)" style="color: var(--gold); border-color: rgba(245,158,11,0.5);">⭐ Viết Đánh Giá</button>`
+                                    }
+                                    <a href="/movie-detail.html?id=${t.MaPhim}" class="btn btn-outline btn-sm">Xem Phim ›</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error('Lỗi loadTickets:', err);
+                listEl.innerHTML = `<div style="text-align: center; color: #ef4444; padding: 3rem;">Lỗi kết nối máy chủ khi nạp lịch sử vé!</div>`;
+            }
+        }
+
+        // Modal Đánh giá
+        function openReviewModal(maHoaDon, maPhim, tenPhim, daDanhGia) {
+            document.getElementById('modalReviewTitle').textContent = `⭐ Đánh giá: ${tenPhim}`;
+            document.getElementById('modalReviewInvoiceId').value = maHoaDon;
+            document.getElementById('modalReviewMovieId').value = maPhim;
+            document.getElementById('btnSaveModalReview').textContent = daDanhGia ? 'Cập Nhật Đánh Giá' : 'Gửi Đánh Giá';
+
+            const modal = document.getElementById('reviewModal');
+            modal.classList.add('active');
+        }
+
+        function closeReviewModal() {
+            document.getElementById('reviewModal').classList.remove('active');
+        }
+
+        async function submitModalReview(e) {
+            e.preventDefault();
+            const userStr = localStorage.getItem('user');
+            if (!userStr) return alert('Vui lòng đăng nhập!');
+
+            const user = JSON.parse(userStr);
+            const maHoaDon = document.getElementById('modalReviewInvoiceId').value;
+            const diem = document.getElementById('modalReviewScore').value;
+            const noiDung = document.getElementById('modalReviewContent').value.trim();
+            const btn = document.getElementById('btnSaveModalReview');
+
+            if (!noiDung) return alert('Vui lòng nhập nội dung đánh giá!');
+
+            btn.disabled = true;
+            btn.textContent = 'Đang gửi...';
+
+            try {
+                const res = await fetch('/api/reviews', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        maKhachHang: user.maKhachHang,
+                        maHoaDon: parseInt(maHoaDon),
+                        doiTuong: 'Phim',
+                        diem: parseInt(diem),
+                        noiDung: noiDung
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    alert('🎉 ' + data.message);
+                    closeReviewModal();
+                    loadTickets();
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            } catch (err) {
+                alert('Không thể kết nối máy chủ!');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Gửi Đánh Giá';
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+    </script>
+</body>
+</html>

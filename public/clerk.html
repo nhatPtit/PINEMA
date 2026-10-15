@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinema - Phân Hệ Bán Vé & Soát Vé Tại Quầy</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        :root {
+            --clerk-primary: #10b981;
+            --clerk-primary-hover: #059669;
+            --clerk-accent: #f59e0b;
+            --clerk-bg: #0b1120;
+            --clerk-card: #131d33;
+            --clerk-card-alt: #1a2744;
+            --clerk-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background-color: var(--clerk-bg);
+            color: var(--text-primary);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding-bottom: 2rem;
+        }
+
+        /* NAVBAR */
+        .clerk-nav {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--clerk-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .clerk-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            text-decoration: none;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .clerk-badge {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .clerk-user-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        /* TABS */
+        .clerk-tabs {
+            background: var(--clerk-card);
+            border-bottom: 1px solid var(--clerk-border);
+            padding: 0.5rem 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .clerk-tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 0.7rem 1.4rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .clerk-tab-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .clerk-tab-btn.active {
+            color: #fff;
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+
+        /* MAIN LAYOUT */
+        .clerk-content {
+            max-width: 1400px;
+            margin: 1.5rem auto;
+            padding: 0 1rem;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* POS BOOKING GRID */
+        .pos-grid {
+            display: grid;
+            grid-template-columns: 1fr 390px;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .pos-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .pos-card {
+            background: var(--clerk-card);
+            border: 1px solid var(--clerk-border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .pos-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--clerk-border);
+        }
+
+        .pos-card-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* MOVIE SELECTION STRIP */
+        .movie-strip {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            scrollbar-width: thin;
+        }
+
+        .movie-chip {
+            flex: 0 0 150px;
+            background: var(--clerk-card-alt);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            padding: 0.6rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .movie-chip:hover {
+            transform: translateY(-2px);
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+
+        .movie-chip.active {
+            border-color: var(--clerk-primary);
+            background: rgba(16, 185, 129, 0.15);
+        }
+
+        .movie-chip img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 0.4rem;
+        }
+
+        .movie-chip .title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* SHOWTIME STRIP */
+        .showtime-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0.8rem;
+        }
+
+        .showtime-chip {
+            background: var(--clerk-card-alt);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .showtime-chip:hover {
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+
+        .showtime-chip.active {
+            border-color: var(--clerk-primary);
+            background: rgba(16, 185, 129, 0.15);
+        }
+
+        .showtime-time {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .showtime-room {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+
+        /* SEAT MATRIX */
+        .screen-banner {
+            background: linear-gradient(180deg, rgba(16, 185, 129, 0.3) 0%, transparent 100%);
+            border-top: 3px solid var(--clerk-primary);
+            color: #fff;
+            text-align: center;
+            padding: 0.4rem 0;
+            margin: 1rem 2rem 2rem 2rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            border-radius: 4px;
+        }
+
+        .seat-matrix {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: center;
+            overflow-x: auto;
+            padding: 1rem 0;
+        }
+
+        .seat-row {
+            display: flex;
+            gap: 0.4rem;
+            align-items: center;
+        }
+
+        .row-label {
+            width: 24px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .pos-seat {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.15s ease;
+        }
+
+        .pos-seat.available-single {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            color: #93c5fd;
+        }
+
+        .pos-seat.available-double {
+            background: rgba(236, 72, 153, 0.2);
+            border: 1px solid rgba(236, 72, 153, 0.5);
+            color: #f472b6;
+            width: 50px;
+        }
+
+        .pos-seat.selected {
+            background: #f59e0b !important;
+            border: 1px solid #d97706 !important;
+            color: #000 !important;
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+        }
+
+        .pos-seat.booked {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.2);
+            cursor: not-allowed;
+        }
+
+        .pos-seat.broken {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px dashed #ef4444;
+            color: #ef4444;
+            cursor: not-allowed;
+        }
+
+        /* SUMMARY & PAYMENT PANEL */
+        .summary-card {
+            background: var(--clerk-card);
+            border: 1px solid var(--clerk-border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            position: sticky;
+            top: 80px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.6rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .summary-row.highlight {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .summary-row.total {
+            border-top: 1px solid var(--clerk-border);
+            padding-top: 0.8rem;
+            margin-top: 0.8rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #10b981;
+        }
+
+        .selected-seats-badge-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin: 0.5rem 0 1rem 0;
+            min-height: 32px;
+        }
+
+        .seat-tag {
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid rgba(245, 158, 11, 0.5);
+            color: #fbbf24;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .btn-checkout {
+            width: 100%;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            border: none;
+            padding: 0.9rem;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-checkout:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-checkout:disabled {
+            background: #374151;
+            color: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* CHECK-IN CARD & INVOICE DETAILS */
+        .checkin-search-box {
+            display: flex;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .checkin-search-box input {
+            flex: 1;
+            background: var(--clerk-card-alt);
+            border: 1px solid var(--clerk-border);
+            color: #fff;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .checkin-search-box input:focus {
+            border-color: var(--clerk-primary);
+        }
+
+        .invoice-banner {
+            background: var(--clerk-card-alt);
+            border: 1px solid var(--clerk-border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .ticket-item-card {
+            background: var(--clerk-card);
+            border: 1px solid var(--clerk-border);
+            border-radius: 10px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .ticket-badge {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .ticket-badge.ready {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+        }
+
+        .ticket-badge.done {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .modal-receipt {
+            background: #fff;
+            color: #111827;
+            width: 100%;
+            max-width: 440px;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .modal-receipt, .modal-receipt * {
+                visibility: visible;
+            }
+            .modal-receipt {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                box-shadow: none;
+                border: none;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR NHÂN VIÊN BÁN VÉ -->
+    <header class="clerk-nav">
+        <a href="/clerk.html" class="clerk-logo">
+            🎬 <span>Pinema POS</span>
+            <span class="clerk-badge">QUẦY BÁN VÉ & SOÁT VÉ</span>
+        </a>
+
+        <div class="clerk-user-bar">
+            <a href="/" class="btn btn-outline btn-sm" style="color: var(--text-muted); font-size: 0.85rem;">
+                🌐 Xem Web Khách
+            </a>
+            <a id="btnManagerPortal" href="/staff.html" class="btn btn-sm" style="display: none; background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); font-size: 0.85rem; font-weight: 600;">
+                ⚙️ Về Trang Quản Lý
+            </a>
+            <div style="font-size: 0.9rem; font-weight: 600;">
+                👤 <span id="clerkName">Nhân viên</span> (<span id="clerkRole" style="color: var(--clerk-primary);">Bán vé</span>)
+            </div>
+            <button id="btnClerkLogout" class="btn btn-outline btn-sm">Đăng Xuất</button>
+        </div>
+    </header>
+
+    <!-- THANH TABS -->
+    <nav class="clerk-tabs">
+        <button class="clerk-tab-btn active" onclick="switchClerkTab('pos')">
+            🎟️ Đặt Vé & Thu Tiền Tại Quầy
+        </button>
+        <button class="clerk-tab-btn" onclick="switchClerkTab('checkin')">
+            🧾 Soát Vé Theo Hóa Đơn
+        </button>
+    </nav>
+
+    <div class="clerk-content">
+
+        <!-- TAB 1: BÁN VÉ TẠI QUẦY (POS) -->
+        <section id="tabPos" class="tab-pane active">
+            <div class="pos-grid">
+                
+                <!-- CỘT TRÁI: TÌM PHIM -> TRUY VẤN SUẤT CHIẾU -> SƠ ĐỒ GHẾ -->
+                <div>
+                    <!-- 1. TÌM KIẾM PHIM THEO TÊN (KHÔNG LOAD SẴN TẤT CẢ SUẤT CHIẾU) -->
+                    <div class="pos-card">
+                        <div class="pos-card-header">
+                            <div class="pos-card-title">🎬 1. Tìm Kiếm Phim Cần Đặt Vé</div>
+                            <span id="posMovieSearchStatus" style="font-size: 0.85rem; color: var(--text-muted);">Nhập tên phim để truy vấn</span>
+                        </div>
+                        <div style="display: flex; gap: 0.8rem; margin-bottom: 1rem;">
+                            <input type="text" id="posMovieSearchInput" placeholder="Nhập tên phim khách muốn đặt (VD: Mai, Conan, Lật Mặt, Đất Rừng...)..." style="flex: 1; padding: 0.75rem 1rem; background: var(--clerk-card-alt); border: 1px solid var(--clerk-border); border-radius: 8px; color: #fff; font-size: 0.95rem; outline: none;" onkeypress="if(event.key === 'Enter') handleSearchPosMovie()">
+                            <button class="btn btn-primary" onclick="handleSearchPosMovie()" style="padding: 0 1.5rem; font-weight: 600; background: var(--clerk-primary); border: none;">
+                                🔍 Tìm Phim
+                            </button>
+                        </div>
+                        <div class="movie-strip" id="posMovieStrip">
+                            <div style="color: var(--text-muted); font-size: 0.9rem; padding: 0.5rem 0;">
+                                💡 Nhập tên phim ở ô tìm kiếm trên và nhấn <strong>Tìm Phim</strong> để hiển thị danh sách phim có suất chiếu.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. TRUY VẤN SUẤT CHIẾU CỦA PHIM ĐÃ CHỌN -->
+                    <div class="pos-card" id="posShowtimeCard" style="display: none;">
+                        <div class="pos-card-header">
+                            <div class="pos-card-title">⏰ 2. Chọn Suất Chiếu Sắp Tới</div>
+                            <span id="posSelectedMovieTitle" style="color: var(--clerk-primary); font-weight: 600; font-size: 0.9rem;"></span>
+                        </div>
+                        <div class="showtime-grid" id="posShowtimeGrid">
+                            <div style="color: var(--text-muted); font-size: 0.9rem;">Vui lòng chọn phim trước...</div>
+                        </div>
+                    </div>
+
+                    <!-- 3. SƠ ĐỒ CHỌN GHẾ -->
+                    <div class="pos-card" id="posSeatMapCard" style="display: none;">
+                        <div class="pos-card-header">
+                            <div class="pos-card-title">💺 3. Sơ Đồ Chọn Ghế Ngồi</div>
+                            <span id="posRoomTitle" style="color: #60a5fa; font-weight: 600; font-size: 0.9rem;"></span>
+                        </div>
+
+                        <!-- Chú thích loại ghế -->
+                        <div style="display: flex; gap: 1.2rem; justify-content: center; margin-bottom: 1rem; font-size: 0.8rem; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                <div class="pos-seat available-single" style="width: 20px; height: 20px;"></div>
+                                <span>Ghế đơn</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                <div class="pos-seat available-double" style="width: 28px; height: 20px;"></div>
+                                <span>Ghế đôi</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                <div class="pos-seat selected" style="width: 20px; height: 20px;"></div>
+                                <span>Đang chọn</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                <div class="pos-seat booked" style="width: 20px; height: 20px;"></div>
+                                <span>Đã bán</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                <div class="pos-seat broken" style="width: 20px; height: 20px;"></div>
+                                <span>Ghế hỏng</span>
+                            </div>
+                        </div>
+
+                        <div class="screen-banner">MÀN HÌNH CHIẾU PHIM</div>
+                        <div class="seat-matrix" id="posSeatMatrix">
+                            <div style="color: var(--text-muted);">Đang tải sơ đồ ghế...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CỘT PHẢI: BẢNG TÍNH TIỀN & XUẤT VÉ -->
+                <div>
+                    <div class="summary-card">
+                        <div class="pos-card-header" style="margin-bottom: 0.8rem;">
+                            <div class="pos-card-title">🧾 Hóa Đơn Tại Quầy</div>
+                            <button class="btn btn-outline btn-sm" onclick="resetPosSelection()" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">Làm mới</button>
+                        </div>
+
+                        <div class="summary-row">
+                            <span>Phim:</span>
+                            <strong id="sumMovieName" style="color: #fff; text-align: right; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Chưa chọn</strong>
+                        </div>
+                        <div class="summary-row">
+                            <span>Suất chiếu:</span>
+                            <span id="sumShowtimeTime" style="color: #fff;">Chưa chọn</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Phòng chiếu:</span>
+                            <span id="sumRoomName" style="color: #fff;">Chưa chọn</span>
+                        </div>
+
+                        <div style="margin: 0.8rem 0 0.4rem 0; font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">
+                            Ghế đã chọn (<span id="sumSeatCount">0</span>):
+                        </div>
+                        <div class="selected-seats-badge-wrap" id="sumSeatBadges">
+                            <span style="font-size: 0.85rem; color: #6b7280;">Chưa chọn ghế</span>
+                        </div>
+
+                        <!-- THÔNG TIN KHÁCH HÀNG -->
+                        <div style="margin-top: 1rem; border-top: 1px solid var(--clerk-border); padding-top: 0.8rem;">
+                            <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.35rem; font-weight: 600;">
+                                📱 SĐT Khách hàng (Tùy chọn)
+                            </label>
+                            <input type="text" id="posCustomerPhone" class="form-control" placeholder="Để trống nếu là Khách vãng lai" style="width: 100%; box-sizing: border-box; padding: 0.6rem; background: var(--clerk-card-alt); border: 1px solid var(--clerk-border); border-radius: 6px; color: #fff; font-size: 0.9rem;">
+                        </div>
+
+                        <!-- MÃ GIẢM GIÁ COUPON -->
+                        <div style="margin-top: 0.8rem;">
+                            <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.35rem; font-weight: 600;">
+                                🏷️ Mã Coupon Giảm Giá
+                            </label>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="text" id="posCouponCode" placeholder="VD: TET2026, VIP10" style="flex: 1; padding: 0.6rem; background: var(--clerk-card-alt); border: 1px solid var(--clerk-border); border-radius: 6px; color: #fff; font-size: 0.9rem; text-transform: uppercase;">
+                                <button type="button" class="btn btn-outline btn-sm" onclick="applyPosCoupon()" style="padding: 0.6rem 0.8rem; font-size: 0.85rem;">Áp dụng</button>
+                            </div>
+                            <div id="posCouponAlert" style="font-size: 0.8rem; margin-top: 0.3rem; display: none;"></div>
+                        </div>
+
+                        <!-- HÌNH THỨC THANH TOÁN -->
+                        <div style="margin-top: 0.8rem;">
+                            <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.35rem; font-weight: 600;">
+                                💳 Phương thức thanh toán
+                            </label>
+                            <select id="posPaymentMethod" style="width: 100%; padding: 0.6rem; background: var(--clerk-card-alt); border: 1px solid var(--clerk-border); border-radius: 6px; color: #fff; font-size: 0.9rem;">
+                                <option value="Tiền mặt">💵 Tiền mặt (Mặc định)</option>
+                                <option value="Thẻ">💳 Thẻ ngân hàng / POS</option>
+                                <option value="Chuyển khoản">📱 Chuyển khoản QR</option>
+                                <option value="Ví điện tử">📲 Ví MoMo / ZaloPay</option>
+                            </select>
+                        </div>
+
+                        <!-- CHI PHÍ -->
+                        <div style="margin-top: 1rem; border-top: 1px solid var(--clerk-border); padding-top: 0.8rem;">
+                            <div class="summary-row">
+                                <span>Tổng tiền vé:</span>
+                                <span id="sumSubtotal">0 đ</span>
+                            </div>
+                            <div class="summary-row" style="color: #34d399;">
+                                <span>Giảm giá (Coupon):</span>
+                                <span id="sumDiscount">-0 đ</span>
+                            </div>
+                            <div class="summary-row total">
+                                <span>TỔNG THU:</span>
+                                <span id="sumTotalPayable">0 đ</span>
+                            </div>
+                        </div>
+
+                        <button id="btnConfirmPosBooking" class="btn-checkout" onclick="handlePosCheckout()" disabled>
+                            ⚡ XÁC NHẬN BÁN VÉ & IN VÉ
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- TAB 2: SOÁT VÉ THEO HÓA ĐƠN -->
+        <section id="tabCheckin" class="tab-pane">
+            <div class="pos-card">
+                <div class="pos-card-header">
+                    <div class="pos-card-title">🧾 Soát Vé Theo Mã Hóa Đơn (Invoice Check-in)</div>
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">Chỉ áp dụng tra cứu và soát vé theo Mã Hóa Đơn</span>
+                </div>
+
+                <div class="checkin-search-box">
+                    <input type="text" id="checkinInvoiceInput" placeholder="Nhập Mã hóa đơn của khách (Ví dụ: 12, HD12, #HD12)..." onkeypress="if(event.key === 'Enter') handleSearchInvoiceCheckin()">
+                    <button class="btn btn-primary" onclick="handleSearchInvoiceCheckin()" style="padding: 0 1.5rem; font-weight: 600; background: var(--clerk-primary); border: none;">
+                        🔎 Tra Cứu Hóa Đơn
+                    </button>
+                </div>
+
+                <div id="checkinResultWrap">
+                    <div style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+                        💡 Nhập Mã hóa đơn của khách hàng để kiểm tra và tiến hành soát vé vào rạp.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- MODAL IN BIÊN NHẬN VÉ POS -->
+    <div class="modal-overlay" id="receiptModal">
+        <div class="modal-receipt">
+            <div style="text-align: center; border-bottom: 2px dashed #e5e7eb; padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+                <h2 style="margin: 0; font-size: 1.3rem; color: #111827;">🎬 PINEMA CINEMA</h2>
+                <div style="font-size: 0.8rem; color: #6b7280; margin-top: 0.2rem;">VÉ XEM PHIM & BIÊN LAI THANH TOÁN</div>
+            </div>
+
+            <div style="font-size: 0.85rem; line-height: 1.5;" id="receiptBody">
+                <!-- Nội dung biên nhận nạp động -->
+            </div>
+
+            <div class="no-print" style="margin-top: 1.25rem; display: flex; gap: 0.75rem; border-top: 1px solid #e5e7eb; padding-top: 1rem;">
+                <button class="btn btn-outline" onclick="window.print()" style="flex: 1; padding: 0.6rem; color: #111827; border-color: #d1d5db; font-weight: 600;">
+                    🖨️ In Vé
+                </button>
+                <button class="btn btn-primary" onclick="closeReceiptModal()" style="flex: 1; padding: 0.6rem; background: #10b981; border: none; font-weight: 600;">
+                    ✅ Bán Đơn Mới
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. KIỂM TRA QUYỀN TRUY CẬP
+        // ==========================================
+        function checkClerkAuth() {
+            try {
+                const userJson = localStorage.getItem('user');
+                if (!userJson) {
+                    alert('⚠️ Bạn chưa đăng nhập! Vui lòng đăng nhập để tiếp tục.');
+                    window.location.href = '/login.html?redirect=/clerk.html';
+                    return null;
+                }
+                const user = JSON.parse(userJson);
+                if (user.role !== 'staff') {
+                    alert('⚠️ Tài khoản này không có quyền nhân viên!');
+                    window.location.href = '/';
+                    return null;
+                }
+
+                document.getElementById('clerkName').textContent = user.hoTen || user.HoTen || 'Nhân viên';
+                document.getElementById('clerkRole').textContent = user.chucVu || user.ChucVu || 'Bán vé (kiêm soát vé)';
+
+                // Nếu là Quản lý ghé thăm trang POS -> Hiển thị nút quay về trang Quản Lý
+                if (user.roleType === 'manager' || (user.chucVu && user.chucVu.includes('Quản lý'))) {
+                    document.getElementById('btnManagerPortal').style.display = 'inline-block';
+                }
+
+                return user;
+            } catch(e) {
+                return null;
+            }
+        }
+
+        const currentStaff = checkClerkAuth();
+
+        document.getElementById('btnClerkLogout')?.addEventListener('click', () => {
+            localStorage.removeItem('user');
+            window.location.href = '/login.html';
+        });
+
+        function switchClerkTab(tabId) {
+            document.querySelectorAll('.clerk-tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+
+            if (tabId === 'pos') {
+                document.querySelectorAll('.clerk-tab-btn')[0].classList.add('active');
+                document.getElementById('tabPos').classList.add('active');
+            } else {
+                document.querySelectorAll('.clerk-tab-btn')[1].classList.add('active');
+                document.getElementById('tabCheckin').classList.add('active');
+            }
+        }
+
+        // ==========================================
+        // 2. NGHIỆP VỤ BÁN VÉ TẠI QUẦY (POS)
+        // ==========================================
+        let searchResults = [];
+        let selectedMovie = null;
+        let selectedShowtime = null;
+        let seatMapData = [];
+        let selectedSeats = [];
+        let currentDiscount = 0;
+        let appliedCouponCode = null;
+
+        // Tìm kiếm phim theo tên khi nhân viên nhập (KHÔNG load tất cả suất chiếu ngay từ đầu)
+        async function handleSearchPosMovie() {
+            const input = document.getElementById('posMovieSearchInput');
+            const term = input.value.trim();
+            const strip = document.getElementById('posMovieStrip');
+            const statusBadge = document.getElementById('posMovieSearchStatus');
+
+            if (!term) {
+                alert('Vui lòng nhập tên phim cần tìm kiếm!');
+                return;
+            }
+
+            strip.innerHTML = '<div style="color: var(--text-muted); padding: 0.5rem;">⏳ Đang tìm kiếm phim...</div>';
+            statusBadge.textContent = 'Đang tìm kiếm...';
+
+            try {
+                const res = await fetch(`/api/staff/pos/movies?search=${encodeURIComponent(term)}`);
+                const data = await res.json();
+
+                if (data.success && Array.isArray(data.data)) {
+                    searchResults = data.data;
+                    statusBadge.textContent = `Tìm thấy ${searchResults.length} phim phù hợp`;
+
+                    if (searchResults.length === 0) {
+                        strip.innerHTML = `
+                            <div style="color: #ef4444; font-size: 0.9rem; padding: 0.5rem;">
+                                ❌ Không tìm thấy phim nào khớp với từ khóa "${term}" có suất chiếu sắp tới!
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    strip.innerHTML = searchResults.map(m => `
+                        <div class="movie-chip" id="chipMovie_${m.MaPhim}" onclick="selectPosMovie(${m.MaPhim})">
+                            <img src="${m.Poster || '/img/default-poster.jpg'}" alt="${m.TenPhim}" onerror="this.src='/img/default-poster.jpg'">
+                            <div class="title" title="${m.TenPhim}">${m.TenPhim}</div>
+                            <div style="font-size: 0.75rem; color: #10b981; margin-top: 0.2rem;">${m.SoSuatChieu} suất chiếu</div>
+                        </div>
+                    `).join('');
+                } else {
+                    strip.innerHTML = '<div style="color: #ef4444;">Lỗi khi tìm kiếm phim!</div>';
+                }
+            } catch (err) {
+                strip.innerHTML = '<div style="color: #ef4444;">Không thể kết nối đến máy chủ!</div>';
+            }
+        }
+
+        // Chọn phim: CHỈ KHI NÀY MỚI TRUY VẤN SUẤT CHIẾU CỦA PHIM ĐÓ
+        async function selectPosMovie(movieId) {
+            selectedMovie = searchResults.find(m => m.MaPhim === movieId);
+            if (!selectedMovie) return;
+
+            document.querySelectorAll('.movie-chip').forEach(c => c.classList.remove('active'));
+            document.getElementById(`chipMovie_${movieId}`)?.classList.add('active');
+
+            document.getElementById('posSelectedMovieTitle').textContent = `Phim: ${selectedMovie.TenPhim}`;
+            document.getElementById('posShowtimeCard').style.display = 'block';
+            document.getElementById('posSeatMapCard').style.display = 'none';
+
+            // Reset state
+            selectedShowtime = null;
+            selectedSeats = [];
+            updatePosSummary();
+
+            const grid = document.getElementById('posShowtimeGrid');
+            grid.innerHTML = '<div style="color: var(--text-muted); padding: 0.5rem;">⏳ Đang truy vấn suất chiếu của phim...</div>';
+
+            try {
+                // Chỉ truy vấn suất chiếu của bộ phim được chọn
+                const res = await fetch(`/api/staff/pos/showtimes?movieId=${movieId}`);
+                const data = await res.json();
+                if (data.success && Array.isArray(data.data)) {
+                    if (data.data.length === 0) {
+                        grid.innerHTML = '<div style="color: var(--text-muted);">Phim này hiện không có suất chiếu sắp tới.</div>';
+                        return;
+                    }
+                    grid.innerHTML = data.data.map(st => `
+                        <div class="showtime-chip" id="chipShowtime_${st.MaSuat}" onclick='selectPosShowtime(${JSON.stringify(st)})'>
+                            <div class="showtime-time">${formatShortTime(st.GioBatDau)} - ${formatShortTime(st.GioKetThuc)}</div>
+                            <div class="showtime-room">🏢 ${st.TenPhong} (${st.CongNgheHoTro})</div>
+                            <div style="font-size: 0.75rem; color: #10b981; margin-top: 0.3rem;">
+                                Còn ${st.TongGheTot - st.SoVeDaBan} ghế | ${Number(st.GiaVeCoBan).toLocaleString('vi-VN')} đ
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (err) {
+                grid.innerHTML = '<div style="color: #ef4444;">Lỗi khi tải suất chiếu!</div>';
+            }
+        }
+
+        // Chọn suất chiếu: CHỈ KHI NÀY MỚI TRUY VẤN SƠ ĐỒ GHẾ CỦA SUẤT CHIẾU ĐÓ
+        async function selectPosShowtime(showtime) {
+            selectedShowtime = showtime;
+            document.querySelectorAll('.showtime-chip').forEach(c => c.classList.remove('active'));
+            document.getElementById(`chipShowtime_${showtime.MaSuat}`)?.classList.add('active');
+
+            document.getElementById('posRoomTitle').textContent = `Phòng: ${showtime.TenPhong} (${showtime.CongNgheHoTro}) - ${showtime.TenRap}`;
+            document.getElementById('posSeatMapCard').style.display = 'block';
+
+            selectedSeats = [];
+            updatePosSummary();
+
+            const matrix = document.getElementById('posSeatMatrix');
+            matrix.innerHTML = '<div style="color: var(--text-muted); padding: 2rem;">⏳ Đang tải sơ đồ ghế...</div>';
+
+            try {
+                const res = await fetch(`/api/staff/pos/seat-map?showtimeId=${showtime.MaSuat}`);
+                const data = await res.json();
+                if (data.success && Array.isArray(data.seats)) {
+                    seatMapData = data.seats;
+                    renderPosSeatMatrix(seatMapData);
+                }
+            } catch (err) {
+                matrix.innerHTML = '<div style="color: #ef4444;">Không thể tải sơ đồ ghế!</div>';
+            }
+        }
+
+        // Vẽ ma trận ghế
+        function renderPosSeatMatrix(seats) {
+            const matrix = document.getElementById('posSeatMatrix');
+            const rowMap = {};
+            seats.forEach(s => {
+                if (!rowMap[s.Hang]) rowMap[s.Hang] = [];
+                rowMap[s.Hang].push(s);
+            });
+
+            matrix.innerHTML = Object.keys(rowMap).sort().map(hang => {
+                const rowSeats = rowMap[hang].sort((a, b) => a.Cot - b.Cot);
+                return `
+                    <div class="seat-row">
+                        <div class="row-label">${hang}</div>
+                        ${rowSeats.map(s => {
+                            let statusClass = 'available-single';
+                            let disabledAttr = '';
+                            if (s.LoaiGhe === 'Đôi') statusClass = 'available-double';
+                            if (s.TrangThaiGhe === 'broken') {
+                                statusClass = 'broken';
+                                disabledAttr = 'data-disabled="1"';
+                            } else if (s.TrangThaiGhe === 'booked' || s.TrangThaiGhe === 'holding') {
+                                statusClass = 'booked';
+                                disabledAttr = 'data-disabled="1"';
+                            }
+
+                            return `
+                                <div class="pos-seat ${statusClass}" 
+                                     id="seat_${s.MaGhe}" 
+                                     ${disabledAttr}
+                                     title="Ghế ${s.TenGhe} (${s.LoaiGhe}) - ${Number(s.GiaVeDuKien).toLocaleString('vi-VN')} đ"
+                                     onclick="toggleSeatSelection(${s.MaGhe})">
+                                    ${s.Cot}
+                                </div>
+                            `;
+                        }).join('')}
+                        <div class="row-label">${hang}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Chọn / Bỏ chọn ghế
+        function toggleSeatSelection(seatId) {
+            const seatElem = document.getElementById(`seat_${seatId}`);
+            if (!seatElem || seatElem.getAttribute('data-disabled') === '1') return;
+
+            const seat = seatMapData.find(s => s.MaGhe === seatId);
+            if (!seat) return;
+
+            const index = selectedSeats.findIndex(s => s.MaGhe === seatId);
+            if (index > -1) {
+                selectedSeats.splice(index, 1);
+                seatElem.classList.remove('selected');
+            } else {
+                selectedSeats.push({
+                    MaGhe: seat.MaGhe,
+                    TenGhe: seat.TenGhe,
+                    LoaiGhe: seat.LoaiGhe,
+                    GiaVe: Number(seat.GiaVeDuKien)
+                });
+                seatElem.classList.add('selected');
+            }
+
+            updatePosSummary();
+        }
+
+        // Cập nhật bảng tổng kết thanh toán
+        function updatePosSummary() {
+            document.getElementById('sumMovieName').textContent = selectedMovie ? selectedMovie.TenPhim : 'Chưa chọn';
+            document.getElementById('sumShowtimeTime').textContent = selectedShowtime 
+                ? `${formatShortTime(selectedShowtime.GioBatDau)} (${selectedShowtime.TenPhong})` 
+                : 'Chưa chọn';
+            document.getElementById('sumRoomName').textContent = selectedShowtime ? selectedShowtime.TenPhong : 'Chưa chọn';
+
+            const badgesWrap = document.getElementById('sumSeatBadges');
+            document.getElementById('sumSeatCount').textContent = selectedSeats.length;
+
+            if (selectedSeats.length === 0) {
+                badgesWrap.innerHTML = '<span style="font-size: 0.85rem; color: #6b7280;">Chưa chọn ghế</span>';
+            } else {
+                badgesWrap.innerHTML = selectedSeats.map(s => `
+                    <span class="seat-tag">${s.TenGhe} (${Number(s.GiaVe).toLocaleString('vi-VN')}đ)</span>
+                `).join('');
+            }
+
+            const subtotal = selectedSeats.reduce((sum, s) => sum + s.GiaVe, 0);
+            const totalPayable = Math.max(0, subtotal - currentDiscount);
+
+            document.getElementById('sumSubtotal').textContent = `${subtotal.toLocaleString('vi-VN')} đ`;
+            document.getElementById('sumDiscount').textContent = `-${currentDiscount.toLocaleString('vi-VN')} đ`;
+            document.getElementById('sumTotalPayable').textContent = `${totalPayable.toLocaleString('vi-VN')} đ`;
+
+            const btnCheckout = document.getElementById('btnConfirmPosBooking');
+            btnCheckout.disabled = (selectedSeats.length === 0 || !selectedShowtime);
+        }
+
+        // Áp dụng mã Coupon
+        async function applyPosCoupon() {
+            const codeInput = document.getElementById('posCouponCode');
+            const alertBox = document.getElementById('posCouponAlert');
+            const code = codeInput.value.trim().toUpperCase();
+
+            if (!code) {
+                currentDiscount = 0;
+                appliedCouponCode = null;
+                alertBox.style.display = 'none';
+                updatePosSummary();
+                return;
+            }
+
+            const subtotal = selectedSeats.reduce((sum, s) => sum + s.GiaVe, 0);
+            if (subtotal === 0) {
+                alert('Vui lòng chọn ghế trước khi áp dụng mã giảm giá!');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/bookings/validate-coupon', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code, totalAmount: subtotal })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    currentDiscount = data.data.discount;
+                    appliedCouponCode = code;
+                    alertBox.style.display = 'block';
+                    alertBox.style.color = '#34d399';
+                    alertBox.textContent = `✅ ${data.message} (-${currentDiscount.toLocaleString('vi-VN')}đ)`;
+                } else {
+                    currentDiscount = 0;
+                    appliedCouponCode = null;
+                    alertBox.style.display = 'block';
+                    alertBox.style.color = '#ef4444';
+                    alertBox.textContent = `❌ ${data.message}`;
+                }
+                updatePosSummary();
+            } catch (e) {
+                alert('Lỗi kiểm tra mã giảm giá!');
+            }
+        }
+
+        // Xác nhận bán vé và in vé tại quầy
+        async function handlePosCheckout() {
+            if (!selectedShowtime || selectedSeats.length === 0) return;
+
+            const btn = document.getElementById('btnConfirmPosBooking');
+            btn.disabled = true;
+            btn.textContent = '⏳ Đang xuất vé & lập hóa đơn...';
+
+            const phone = document.getElementById('posCustomerPhone').value.trim();
+            const paymentMethod = document.getElementById('posPaymentMethod').value;
+
+            try {
+                const res = await fetch('/api/staff/pos/book', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        maSuat: selectedShowtime.MaSuat,
+                        danhSachMaGhe: selectedSeats.map(s => s.MaGhe),
+                        soDienThoaiKhach: phone || null,
+                        maCoupon: appliedCouponCode || null,
+                        phuongThucThanhToan: paymentMethod,
+                        maNhanVien: currentStaff.maNhanVien || currentStaff.MaNhanVien
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    showReceiptModal(data.data);
+                } else {
+                    alert('❌ Bán vé không thành công: ' + (data.message || 'Lỗi server!'));
+                    selectPosShowtime(selectedShowtime);
+                }
+            } catch (err) {
+                alert('Không thể kết nối đến máy chủ thanh toán!');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '⚡ XÁC NHẬN BÁN VÉ & IN VÉ';
+            }
+        }
+
+        // Hiển thị modal biên lai
+        function showReceiptModal(data) {
+            const body = document.getElementById('receiptBody');
+            body.innerHTML = `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem;">
+                    <span>Mã hóa đơn:</span>
+                    <strong style="color: #ef4444; font-size: 1.1rem;">#HD${data.maHoaDon}</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem;">
+                    <span>Thời gian:</span>
+                    <span>${data.thoiDiemLap}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem;">
+                    <span>Thu ngân / Bán vé:</span>
+                    <strong>${currentStaff.hoTen || currentStaff.HoTen || 'Nhân viên'}</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem;">
+                    <span>Khách hàng:</span>
+                    <span>${data.tenKhachHang} (${data.soDienThoaiKhach})</span>
+                </div>
+
+                <div style="border-top: 1px dashed #d1d5db; margin: 0.6rem 0; padding-top: 0.6rem;">
+                    <div style="font-size: 1rem; font-weight: 700; color: #111827;">${data.tenPhim}</div>
+                    <div style="color: #4b5563; font-size: 0.85rem; margin-top: 0.2rem;">
+                        🏢 ${data.tenPhong} - ${data.tenRap}
+                    </div>
+                    <div style="color: #4b5563; font-size: 0.85rem;">
+                        ⏰ Suất chiếu: <strong>${data.gioBatDau}</strong>
+                    </div>
+                </div>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 0.6rem 0; font-size: 0.85rem;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid #e5e7eb; text-align: left; color: #6b7280;">
+                            <th style="padding: 0.3rem 0;">Mã vé</th>
+                            <th style="padding: 0.3rem 0;">Ghế</th>
+                            <th style="padding: 0.3rem 0;">Loại</th>
+                            <th style="padding: 0.3rem 0; text-align: right;">Giá vé</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.danhSachVe.map(v => `
+                            <tr style="border-bottom: 1px solid #f3f4f6;">
+                                <td style="padding: 0.35rem 0; font-weight: 600;">#${v.maVe}</td>
+                                <td style="padding: 0.35rem 0; font-weight: 700;">${v.soGhe}</td>
+                                <td style="padding: 0.35rem 0; color: #6b7280;">${v.loaiGhe}</td>
+                                <td style="padding: 0.35rem 0; text-align: right;">${Number(v.giaVe).toLocaleString('vi-VN')} đ</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+
+                <div style="border-top: 1px dashed #d1d5db; padding-top: 0.6rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.2rem;">
+                        <span>Tổng tiền vé:</span>
+                        <span>${Number(data.tongTienVe).toLocaleString('vi-VN')} đ</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.2rem; color: #059669;">
+                        <span>Giảm giá:</span>
+                        <span>-${Number(data.tienGiam).toLocaleString('vi-VN')} đ</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 700; color: #111827; margin-top: 0.4rem;">
+                        <span>THỰC THU:</span>
+                        <span>${Number(data.soTienThanhToan).toLocaleString('vi-VN')} đ</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 0.3rem; font-size: 0.8rem; color: #6b7280;">
+                        <span>Hình thức:</span>
+                        <span>${data.phuongThucThanhToan}</span>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 1rem; font-size: 0.75rem; color: #9ca3af; border-top: 1px solid #f3f4f6; padding-top: 0.5rem;">
+                    Cảm ơn quý khách! Chúc quý khách xem phim vui vẻ!
+                </div>
+            `;
+
+            document.getElementById('receiptModal').style.display = 'flex';
+        }
+
+        function closeReceiptModal() {
+            document.getElementById('receiptModal').style.display = 'none';
+            resetPosSelection();
+            if (selectedShowtime) {
+                selectPosShowtime(selectedShowtime);
+            }
+        }
+
+        function resetPosSelection() {
+            selectedSeats = [];
+            currentDiscount = 0;
+            appliedCouponCode = null;
+            document.getElementById('posCouponCode').value = '';
+            document.getElementById('posCouponAlert').style.display = 'none';
+            document.querySelectorAll('.pos-seat.selected').forEach(s => s.classList.remove('selected'));
+            updatePosSummary();
+        }
+
+        // ==========================================
+        // 3. NGHIỆP VỤ SOÁT VÉ THEO HÓA ĐƠN
+        // ==========================================
+        let currentInvoiceData = null;
+
+        async function handleSearchInvoiceCheckin() {
+            const input = document.getElementById('checkinInvoiceInput');
+            const raw = input.value.trim();
+            const wrap = document.getElementById('checkinResultWrap');
+
+            if (!raw) {
+                alert('Vui lòng nhập Mã hóa đơn của khách hàng!');
+                return;
+            }
+
+            // Kiểm tra tính hợp lệ: Chỉ cho phép số hoặc tiền tố HD
+            const cleanId = raw.replace(/^#|HD/gi, '');
+            if (!/^\d+$/.test(cleanId) || parseInt(cleanId) <= 0) {
+                alert('⚠️ Hệ thống CHỈ hỗ trợ soát vé theo Mã Hóa Đơn (ví dụ: 12, HD12, #HD12)!\nKhông hỗ trợ tra cứu theo Số điện thoại hay Mã vé.');
+                return;
+            }
+
+            wrap.innerHTML = '<div style="text-align: center; padding: 2.5rem; color: var(--text-muted);">⏳ Đang tra cứu hóa đơn #' + cleanId + '...</div>';
+
+            try {
+                const res = await fetch(`/api/staff/checkin/search?invoiceId=${encodeURIComponent(cleanId)}`);
+                const data = await res.json();
+
+                if (!data.success || !data.invoice) {
+                    wrap.innerHTML = `
+                        <div style="text-align: center; padding: 3rem 1rem; background: var(--clerk-card-alt); border-radius: 8px;">
+                            <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🔍</div>
+                            <div style="font-weight: 700; color: #ef4444; font-size: 1.1rem;">${data.message || 'Không tìm thấy hóa đơn!'}</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.4rem;">
+                                Vui lòng kiểm tra lại số hóa đơn trên vé của khách hàng.
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                currentInvoiceData = data;
+                renderInvoiceCheckinUI(data);
+
+            } catch (e) {
+                wrap.innerHTML = '<div style="color: #ef4444; padding: 1.5rem; text-align: center;">Lỗi kết nối máy chủ khi tra cứu hóa đơn!</div>';
+            }
+        }
+
+        function renderInvoiceCheckinUI(data) {
+            const wrap = document.getElementById('checkinResultWrap');
+            const inv = data.invoice;
+            const tickets = data.data;
+
+            const remainingTickets = tickets.filter(t => !t.DaSoatVe && t.TrangThaiVe === 'Đã thanh toán').length;
+            const allChecked = (remainingTickets === 0);
+
+            wrap.innerHTML = `
+                <!-- BANNER THÔNG TIN HÓA ĐƠN -->
+                <div class="invoice-banner">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.4rem;">
+                            <span style="font-size: 1.3rem; font-weight: 800; color: #fff;">
+                                HÓA ĐƠN #HD${inv.MaHoaDon}
+                            </span>
+                            <span class="ticket-badge ${allChecked ? 'done' : 'ready'}">
+                                ${allChecked ? '✅ Toàn Bộ Vé Đã Soát' : `⏳ Còn ${remainingTickets}/${inv.TongSoVe} Vé Chưa Soát`}
+                            </span>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
+                            <div>Khách hàng: <strong style="color: #fff;">${inv.TenKhachHang}</strong> (SĐT: ${inv.SDTKhach})</div>
+                            <div>Thời điểm lập: ${inv.ThoiDiemLap} | Thu ngân: ${inv.TenNhanVienLap || 'Đặt trực tuyến'}</div>
+                            <div>Tổng tiền: <strong>${Number(inv.TongTienVe).toLocaleString('vi-VN')} đ</strong> (Giảm giá: ${Number(inv.TienGiam).toLocaleString('vi-VN')} đ)</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        ${!allChecked 
+                            ? `<button class="btn btn-primary" onclick="confirmCheckinAllInvoice(${inv.MaHoaDon})" style="background: #10b981; border: none; font-weight: 700; padding: 0.85rem 1.4rem; font-size: 0.95rem;">
+                                ✅ SOÁT TOÀN BỘ VÉ (${remainingTickets} vé)
+                               </button>`
+                            : `<button class="btn btn-outline" disabled style="opacity: 0.6; cursor: not-allowed; border-color: rgba(255,255,255,0.2);">
+                                🆗 Đã Hoàn Tất Soát Vé
+                               </button>`
+                        }
+                    </div>
+                </div>
+
+                <!-- DANH SÁCH TỪNG VÉ TRONG HÓA ĐƠN -->
+                <div style="margin-bottom: 0.8rem; font-weight: 700; font-size: 1rem; color: #fff;">
+                    🎟️ Danh Sách Vé Trong Hóa Đơn (${tickets.length} vé):
+                </div>
+
+                ${tickets.map(v => {
+                    const isChecked = !!v.DaSoatVe;
+                    return `
+                        <div class="ticket-item-card" id="ticketCard_${v.MaVe}">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <img src="${v.Poster || '/img/default-poster.jpg'}" alt="${v.TenPhim}" style="width: 50px; height: 75px; object-fit: cover; border-radius: 6px;" onerror="this.src='/img/default-poster.jpg'">
+                                <div>
+                                    <div style="font-size: 1rem; font-weight: 700; color: #fff;">
+                                        ${v.TenPhim}
+                                    </div>
+                                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem;">
+                                        Mã vé: <strong style="color: #fbbf24;">#${v.MaVe}</strong> | Phòng: <strong style="color: #60a5fa;">${v.TenPhong}</strong> | Ghế: <strong style="color: #34d399; font-size: 1.05rem;">${v.MaGheText}</strong> (${v.LoaiGhe})
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 0.15rem;">
+                                        ⏰ Suất: <strong>${v.GioBatDau}</strong> | Giá: ${Number(v.GiaVe).toLocaleString('vi-VN')} đ
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; align-items: center; gap: 0.8rem;">
+                                ${isChecked 
+                                    ? `<div style="text-align: right;">
+                                        <span class="ticket-badge done">✅ Đã Soát Vé</span>
+                                        <div style="font-size: 0.75rem; color: #6ee7b7; margin-top: 0.2rem;">Lúc ${formatDateTime(v.ThoiDiemSoatVe)}</div>
+                                       </div>`
+                                    : `<button class="btn btn-primary btn-sm" onclick="confirmCheckinSingleTicket(${v.MaVe})" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.5); font-weight: 600; padding: 0.5rem 0.9rem;">
+                                        ✅ Soát Vé Này
+                                       </button>`
+                                }
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            `;
+        }
+
+        // Soát toàn bộ vé trong hóa đơn
+        async function confirmCheckinAllInvoice(maHoaDon) {
+            if (!confirm(`Xác nhận soát vé cho TOÀN BỘ các vé trong Hóa đơn #HD${maHoaDon}?`)) return;
+
+            try {
+                const res = await fetch('/api/staff/checkin/confirm-invoice', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ maHoaDon })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    alert(data.message);
+                    handleSearchInvoiceCheckin(); // Tải lại danh sách
+                } else {
+                    alert(data.message || 'Lỗi khi soát vé hóa đơn!');
+                }
+            } catch (e) {
+                alert('Không thể kết nối đến máy chủ soát vé!');
+            }
+        }
+
+        // Soát từng vé lẻ trong hóa đơn
+        async function confirmCheckinSingleTicket(maVe) {
+            if (!confirm(`Xác nhận soát vé #${maVe} cho khách vào rạp?`)) return;
+
+            try {
+                const res = await fetch('/api/staff/checkin/confirm', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ maVe })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    alert(data.message);
+                    handleSearchInvoiceCheckin(); // Tải lại danh sách
+                } else {
+                    alert(data.message || 'Lỗi soát vé!');
+                }
+            } catch (e) {
+                alert('Không thể kết nối đến máy chủ soát vé!');
+            }
+        }
+
+        // Helper format
+        function formatShortTime(dtStr) {
+            if (!dtStr) return '';
+            const d = new Date(dtStr);
+            const hh = String(d.getHours()).padStart(2, '0');
+            const mm = String(d.getMinutes()).padStart(2, '0');
+            return `${hh}:${mm}`;
+        }
+
+        function formatDateTime(dtStr) {
+            if (!dtStr) return '';
+            const d = new Date(dtStr);
+            const hh = String(d.getHours()).padStart(2, '0');
+            const mm = String(d.getMinutes()).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            const MM = String(d.getMonth() + 1).padStart(2, '0');
+            return `${hh}:${mm} ${dd}/${MM}`;
+        }
+    </script>
+</body>
+</html>

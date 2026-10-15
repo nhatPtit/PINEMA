@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinema</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .auth-container {
+            max-width: 440px;
+            margin: 3rem auto;
+            background: var(--bg-secondary);
+            padding: 2.5rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+        }
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .auth-tab {
+            flex: 1;
+            padding: 0.8rem;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 2px solid transparent;
+        }
+        .auth-tab.active {
+            color: var(--accent-color);
+            border-bottom-color: var(--accent-color);
+        }
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 0.95rem;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+        .auth-message {
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.2rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .auth-message.error {
+            display: block;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+        .auth-message.success {
+            display: block;
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid #22c55e;
+            color: #22c55e;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="logo">🎬<span class="brand-text">Pine<span>ma</span></span></a>
+        <ul class="nav-links">
+            <li><a href="/">Trang Chủ</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="auth-container">
+            <div class="auth-tabs">
+                <div class="auth-tab active" id="tabLogin" onclick="switchTab('login')">Đăng Nhập</div>
+                <div class="auth-tab" id="tabRegister" onclick="switchTab('register')">Đăng Ký</div>
+            </div>
+
+            <div id="authAlert" class="auth-message"></div>
+
+            <!-- FORM ĐĂNG NHẬP -->
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label">Email hoặc Số điện thoại</label>
+                    <input type="text" id="loginAccount" class="form-control" placeholder="VD: 0901000001 hoặc anh@mail.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mật khẩu (Mặc định CSDL: 123456)</label>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required>
+                </div>
+                <button type="submit" id="btnLoginSubmit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; margin-top: 1rem;">Đăng Nhập</button>
+            </form>
+
+            <!-- FORM ĐĂNG KÝ -->
+            <form id="registerForm" style="display: none;" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label class="form-label">Họ và tên</label>
+                    <input type="text" id="regName" class="form-control" placeholder="Nguyễn Văn A" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="regEmail" class="form-control" placeholder="email@example.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Số điện thoại</label>
+                    <input type="tel" id="regPhone" class="form-control" placeholder="0912345678" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Ngày sinh</label>
+                    <input type="date" id="regBirth" class="form-control" value="2000-01-01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mật khẩu</label>
+                    <input type="password" id="regPassword" class="form-control" placeholder="••••••••" required>
+                </div>
+                <button type="submit" id="btnRegSubmit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; margin-top: 1rem;">Tạo Tài Khoản</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const alertBox = document.getElementById('authAlert');
+
+        function showAlert(msg, isSuccess = false) {
+            alertBox.textContent = msg;
+            alertBox.className = 'auth-message ' + (isSuccess ? 'success' : 'error');
+        }
+
+        function clearAlert() {
+            alertBox.style.display = 'none';
+            alertBox.className = 'auth-message';
+        }
+
+        function switchTab(tab) {
+            clearAlert();
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const tabLogin = document.getElementById('tabLogin');
+            const tabRegister = document.getElementById('tabRegister');
+
+            if (tab === 'login') {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                tabLogin.classList.add('active');
+                tabRegister.classList.remove('active');
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                tabLogin.classList.remove('active');
+                tabRegister.classList.add('active');
+            }
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('tab') === 'register') {
+            switchTab('register');
+        }
+
+        // Xử lý đăng nhập kết nối API SQL Server (tự động nhận diện Khách hàng / Nhân viên)
+        async function handleLogin(e) {
+            e.preventDefault();
+            clearAlert();
+
+            const account = document.getElementById('loginAccount').value.trim();
+            const matKhau = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('btnLoginSubmit');
+
+            btn.disabled = true;
+            btn.textContent = 'Đang xác thực...';
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ account, matKhau })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    showAlert('Đăng nhập thành công! Đang chuyển hướng...', true);
+                    localStorage.setItem('user', JSON.stringify(data.data));
+
+                    // Tự động điều hướng theo phân hệ tài khoản
+                    setTimeout(() => {
+                        if (data.data.role === 'staff') {
+                            if (data.data.roleType === 'clerk' || (data.data.chucVu && !data.data.chucVu.includes('Quản lý'))) {
+                                window.location.href = '/clerk.html';
+                            } else {
+                                window.location.href = '/staff.html';
+                            }
+                        } else {
+                            const redirectUrl = urlParams.get('redirect') || '/';
+                            window.location.href = redirectUrl;
+                        }
+                    }, 800);
+                } else {
+                    showAlert(data.message || 'Đăng nhập thất bại!');
+                }
+            } catch (err) {
+                showAlert('Không thể kết nối đến máy chủ xác thực!');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Đăng Nhập';
+            }
+        }
+
+        // Xử lý đăng ký tài khoản khách hàng vào SQL Server
+        async function handleRegister(e) {
+            e.preventDefault();
+            clearAlert();
+
+            const hoTen = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const sdt = document.getElementById('regPhone').value.trim();
+            const ngaySinh = document.getElementById('regBirth').value;
+            const matKhau = document.getElementById('regPassword').value;
+            const btn = document.getElementById('btnRegSubmit');
+
+            btn.disabled = true;
+            btn.textContent = 'Đang đăng ký...';
+
+            try {
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hoTen, email, sdt, ngaySinh, matKhau })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    showAlert('Đăng ký tài khoản thành công! Tự động đăng nhập...', true);
+                    localStorage.setItem('user', JSON.stringify(data.data));
+
+                    const redirectUrl = urlParams.get('redirect') || '/';
+                    setTimeout(() => {
+                        window.location.href = redirectUrl;
+                    }, 1000);
+                } else {
+                    showAlert(data.message || 'Đăng ký thất bại!');
+                }
+            } catch (err) {
+                showAlert('Không thể kết nối đến máy chủ đăng ký!');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Tạo Tài Khoản';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinema - Phân Hệ Nghiệp Vụ Nhân Viên</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        :root {
+            --staff-primary: #f59e0b;
+            --staff-primary-hover: #d97706;
+            --staff-bg-dark: #0b1120;
+            --staff-card: #131d33;
+            --staff-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background-color: var(--staff-bg-dark);
+            color: var(--text-primary);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding-bottom: 3rem;
+        }
+
+        .staff-nav {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--staff-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .staff-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            text-decoration: none;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .staff-badge {
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            color: #fff;
+            font-size: 0.75rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .staff-user-bar {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .staff-tabs {
+            background: var(--staff-card);
+            border-bottom: 1px solid var(--staff-border);
+            padding: 0.5rem 1.5rem;
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .staff-tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 0.6rem 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.92rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .staff-tab-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .staff-tab-btn.active {
+            color: #fff;
+            background: rgba(245, 158, 11, 0.15);
+            border-color: rgba(245, 158, 11, 0.4);
+        }
+
+        .staff-content {
+            max-width: 1300px;
+            margin: 1.5rem auto;
+            padding: 0 1rem;
+        }
+
+        .tab-pane {
+            display: none;
+            animation: fadeIn 0.25s ease-out;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Thẻ thống kê Dashboard */
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-card {
+            background: var(--staff-card);
+            border: 1px solid var(--staff-border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .metric-title {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .metric-val {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .metric-gold { color: #f59e0b; }
+        .metric-green { color: #10b981; }
+        .metric-red { color: #ef4444; }
+        .metric-blue { color: #3b82f6; }
+
+        /* Khung nội dung bảng biểu */
+        .content-box {
+            background: var(--staff-card);
+            border: 1px solid var(--staff-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+            border-bottom: 1px solid var(--staff-border);
+            padding-bottom: 0.8rem;
+        }
+
+        .box-title {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .box-subtitle {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 0.2rem;
+        }
+
+        /* Bảng hiển thị dữ liệu */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--staff-border);
+        }
+
+        .staff-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .staff-table th {
+            background: rgba(15, 23, 42, 0.7);
+            padding: 0.85rem 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--staff-border);
+            white-space: nowrap;
+        }
+
+        .staff-table td {
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            vertical-align: middle;
+        }
+
+        .staff-table tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        /* Soát vé */
+        .checkin-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--staff-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .checkin-poster {
+            width: 100px;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--staff-border);
+        }
+
+        .checkin-details {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .checkin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 0.5rem 1rem;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Sơ đồ ghế nhân viên */
+        .staff-seat-grid {
+            display: grid;
+            gap: 8px;
+            justify-content: center;
+            padding: 1.5rem 0;
+            overflow-x: auto;
+        }
+
+        .staff-seat-cell {
+            width: 44px;
+            height: 44px;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+            user-select: none;
+        }
+
+        .staff-seat-cell:hover {
+            transform: scale(1.1);
+        }
+
+        .seat-good {
+            background: #10b981;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+
+        .seat-broken {
+            background: #ef4444;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+            border: 2px dashed #fca5a5;
+        }
+
+        /* Cảnh báo Trigger */
+        .trigger-alert-banner {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+            padding: 1rem 1.2rem;
+            border-radius: 8px;
+            margin-bottom: 1.2rem;
+            display: none;
+            font-weight: 500;
+        }
+
+        /* Modal */
+        .staff-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .staff-modal.active {
+            display: flex;
+        }
+
+        .staff-modal-content {
+            background: #131d33;
+            border: 1px solid var(--staff-border);
+            border-radius: 14px;
+            max-width: 650px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .form-control {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--staff-border);
+            color: #fff;
+            padding: 0.65rem 0.85rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .form-control:focus {
+            border-color: var(--staff-primary);
+        }
+
+        .badge-status {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-status.active { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .badge-status.expired { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        .badge-status.checked { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    </style>
+</head>
+<body>
+
+    <!-- THANH ĐIỀU HƯỚNG NHÂN VIÊN -->
+    <header class="staff-nav">
+        <a href="/staff.html" class="staff-logo">
+            🎬 <span>Pinema</span>
+            <span class="staff-badge">PHÂN HỆ NHÂN VIÊN</span>
+        </a>
+
+        <div class="staff-user-bar">
+            <a href="/clerk.html" class="btn btn-outline btn-sm" style="color: var(--staff-primary); border-color: rgba(245, 158, 11, 0.4); font-size: 0.85rem; font-weight: 600;">
+                🎟️ Quầy Bán Vé (POS)
+            </a>
+            <a href="/" class="btn btn-outline btn-sm" style="color: var(--text-muted); font-size: 0.85rem;">
+                🌐 Xem Web Khách Hàng
+            </a>
+            <div id="staffGreeting" style="font-size: 0.9rem; font-weight: 600;">
+                👤 <span id="staffNameDisplay">Nhân viên</span> (<span id="staffRoleDisplay" style="color: var(--staff-primary);">Quản lý</span>)
+            </div>
+            <button id="btnStaffLogout" class="btn btn-outline btn-sm">Đăng Xuất</button>
+        </div>
+    </header>
+
+    <!-- THANH TABS NGHIỆP VỤ -->
+    <nav class="staff-tabs" id="staffTabNav">
+        <button class="staff-tab-btn active" data-tab="reports">
+            📊 Thống Kê & Báo Cáo (BTL)
+        </button>
+        <button class="staff-tab-btn" data-tab="movies">
+            🎬 Quản Lý Phim
+        </button>
+        <button class="staff-tab-btn" data-tab="showtimes">
+            ⏰ Quản Lý Suất Chiếu & Trigger
+        </button>
+        <button class="staff-tab-btn" data-tab="checkin">
+            🎟️ Soát Vé Tại Quầy
+        </button>
+        <button class="staff-tab-btn" data-tab="rooms">
+            💺 Phòng Chiếu & Ghế Hỏng
+        </button>
+        <button class="staff-tab-btn" data-tab="coupons">
+            🎁 Mã Giảm Giá Coupon
+        </button>
+    </nav>
+
+    <!-- NỘI DUNG CHÍNH -->
+    <main class="staff-content">
+
+        <!-- ========================================================================= -->
+        <!-- TAB 1: BÁO CÁO & THỐNG KÊ NGHIỆP VỤ (1 TRANG GỒM ĐỦ Q5, Q6, Q7, Q9, Q10) -->
+        <!-- ========================================================================= -->
+        <div class="tab-pane active" id="pane-reports">
+            <!-- 6 Chỉ số thống kê nhanh -->
+            <div class="metric-grid" id="metricsOverview">
+                <div class="metric-card">
+                    <span class="metric-title">Tổng Số Phim Trong CSDL</span>
+                    <span class="metric-val metric-blue" id="mTotalMovies">0</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-title">Suất Chiếu Sắp Tới (Hợp lệ)</span>
+                    <span class="metric-val metric-gold" id="mUpcomingShowtimes">0</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-title">Tổng Số Vé Đã Bán Ra</span>
+                    <span class="metric-val metric-green" id="mTotalSoldTickets">0</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-title">Tổng Doanh Thu Vé (VNĐ)</span>
+                    <span class="metric-val metric-green" id="mTotalRevenue">0đ</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-title">Ghế Hỏng Cần Bảo Trì</span>
+                    <span class="metric-val metric-red" id="mBrokenSeats">0</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-title">Mã Voucher Đang Khả Dụng</span>
+                    <span class="metric-val metric-gold" id="mActiveCoupons">0</span>
+                </div>
+            </div>
+
+            <!-- Q6: Thống kê Doanh thu và Số vé đã bán theo từng Rạp -->
+            <div class="content-box">
+                <div class="box-header">
+                    <div>
+                        <h3 class="box-title">🏛️ [Q6]: Doanh Thu & Số Vé Bán Ra Theo Từng Cụm Rạp</h3>
+                        <div class="box-subtitle">Truy vấn: JOIN nhiều bảng + SUM(GiaVe) + GROUP BY theo từng cụm rạp</div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="staff-table" id="tableQ6">
+                        <thead>
+                            <tr>
+                                <th>Mã Rạp</th>
+                                <th>Tên Cụm Rạp</th>
+                                <th>Địa Chỉ</th>
+                                <th>Tỉnh / Thành</th>
+                                <th>Số Vé Đã Bán</th>
+                                <th>Doanh Thu Thực Tế</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bodyQ6">
+                            <tr><td colspan="6" style="text-align:center;">Đang tải dữ liệu báo cáo Q6...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 1.5rem;">
+                <!-- Q5: Top 10 khách hàng chi tiêu nhiều nhất -->
+                <div class="content-box">
+                    <div class="box-header">
+                        <div>
+                            <h3 class="box-title">👑 [Q5]: Top 10 Khách Hàng Chi Tiêu Cao Nhất</h3>
+                            <div class="box-subtitle">Truy vấn: GROUP BY + HAVING (Tổng tiền vé > 100.000đ)</div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="staff-table" id="tableQ5">
+                            <thead>
+                                <tr>
+                                    <th>Top</th>
+                                    <th>Khách Hàng</th>
+                                    <th>Số Điện Thoại</th>
+                                    <th>Số Đơn</th>
+                                    <th>Tổng Chi Tiêu</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bodyQ5">
+                                <tr><td colspan="5" style="text-align:center;">Đang tải dữ liệu báo cáo Q5...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Q7: Phim có số vé bán ra cao hơn mức trung bình -->
+                <div class="content-box">
+                    <div class="box-header">
+                        <div>
+                            <h3 class="box-title">🔥 [Q7]: Phim Có Doanh Số Vé Bán Vượt Mức Trung Bình</h3>
+                            <div class="box-subtitle">Truy vấn: SUBQUERY trong HAVING (SoVe > AVG(SoVe toàn hệ thống))</div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="staff-table" id="tableQ7">
+                            <thead>
+                                <tr>
+                                    <th>Mã</th>
+                                    <th>Tên Phim</th>
+                                    <th>Độ Tuổi</th>
+                                    <th>Vé Bán Ra</th>
+                                    <th>Mức TB Hệ Thống</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bodyQ7">
+                                <tr><td colspan="5" style="text-align:center;">Đang tải dữ liệu báo cáo Q7...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 1.5rem;">
+                <!-- Q9: Tình trạng ghế tốt / hỏng theo từng phòng chiếu -->
+                <div class="content-box">
+                    <div class="box-header">
+                        <div>
+                            <h3 class="box-title">🛠️ [Q9]: Tình Trạng Ghế Tốt / Hỏng Theo Phòng Chiếu</h3>
+                            <div class="box-subtitle">Truy vấn: JOIN + GROUP BY + CASE + SUM (Kiểm soát cơ sở vật chất phòng)</div>
+                        </div>
+                    </div>
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="staff-table" id="tableQ9">
+                            <thead>
+                                <tr>
+                                    <th>Cụm Rạp</th>
+                                    <th>Phòng</th>
+                                    <th>Công Nghệ</th>
+                                    <th>Tổng Ghế</th>
+                                    <th>Ghế Tốt</th>
+                                    <th>Ghế Hỏng</th>
+                                    <th>Tỷ Lệ Hỏng</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bodyQ9">
+                                <tr><td colspan="7" style="text-align:center;">Đang tải dữ liệu báo cáo Q9...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Q10: Điểm đánh giá trung bình của từng phim -->
+                <div class="content-box">
+                    <div class="box-header">
+                        <div>
+                            <h3 class="box-title">⭐ [Q10]: Điểm Đánh Giá Trung Bình Của Từng Phim</h3>
+                            <div class="box-subtitle">Truy vấn: JOIN DanhGia + AVG(Diem) + GROUP BY theo Phim</div>
+                        </div>
+                    </div>
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="staff-table" id="tableQ10">
+                            <thead>
+                                <tr>
+                                    <th>Mã</th>
+                                    <th>Tên Phim</th>
+                                    <th>Lượt Nhận Xét</th>
+                                    <th>Điểm TB</th>
+                                    <th>Xếp Hạng Sao</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bodyQ10">
+                                <tr><td colspan="5" style="text-align:center;">Đang tải dữ liệu báo cáo Q10...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 2: QUẢN LÝ PHIM (CRUD MOVIE) -->
+        <!-- ========================================================================= -->
+        <div class="tab-pane" id="pane-movies">
+            <div class="content-box">
+                <div class="box-header">
+                    <div>
+                        <h3 class="box-title">🎬 Danh Mục Phim Điện Ảnh</h3>
+                        <div class="box-subtitle">Quản lý thêm mới, chỉnh sửa thông tin và xóa phim trong hệ thống CSDL</div>
+                    </div>
+                    <div style="display: flex; gap: 0.8rem; align-items: center;">
+                        <input type="text" id="staffMovieSearch" placeholder="🔍 Tìm phim theo tên..." class="form-control" style="width: 250px;">
+                        <button class="btn btn-primary" onclick="openMovieAddModal()">+ Thêm Phim Mới</button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="staff-table">
+                        <thead>
+                            <tr>
+                                <th>Mã</th>
+                                <th>Poster</th>
+                                <th>Tên Phim</th>
+                                <th>Thời Lượng</th>
+                                <th>Độ Tuổi</th>
+                                <th>Thể Loại</th>
+                                <th>Khởi Chiếu</th>
+                                <th>Hành Động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staffMoviesBody">
+                            <tr><td colspan="8" style="text-align: center;">Đang tải danh sách phim...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 3: QUẢN LÝ SUẤT CHIẾU & TRIGGER CHECK -->
+        <!-- ========================================================================= -->
+        <div class="tab-pane" id="pane-showtimes">
+            <div class="content-box">
+                <div class="box-header">
+                    <div>
+                        <h3 class="box-title">⏰ Lập Lịch Suất Chiếu & Kiểm Tra Trùng Bằng Trigger</h3>
+                        <div class="box-subtitle">Khi lưu, CSDL kích hoạt Trigger <code>dbo.trg_LichChieu_KhongChongCheo</code> tự động từ chối nếu phòng chiếu bị đè lịch</div>
+                    </div>
+                </div>
+
+                <!-- Cảnh báo Trigger nếu trùng lịch -->
+                <div id="triggerAlert" class="trigger-alert-banner"></div>
+
+                <!-- Form Lập Lịch Suất Chiếu Mới -->
+                <form id="formAddShowtime" onsubmit="handleCreateShowtime(event)" style="background: rgba(15,23,42,0.5); padding: 1.25rem; border-radius: 10px; border: 1px solid var(--staff-border); margin-bottom: 2rem;">
+                    <h4 style="margin-top: 0; margin-bottom: 1rem; color: var(--staff-primary);">➕ Tạo Suất Chiếu Mới Cho Phòng:</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Chọn Phim (*):</label>
+                            <select id="stMovieSelect" class="form-control" required>
+                                <option value="">-- Đang nạp danh sách phim --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Chọn Cụm Rạp (*):</label>
+                            <select id="stCinemaSelect" class="form-control" required onchange="handleCinemaChange(this.value)">
+                                <option value="">-- Chọn Cụm Rạp --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Chọn Phòng Chiếu (*):</label>
+                            <select id="stRoomSelect" class="form-control" required>
+                                <option value="">-- Vui lòng chọn rạp trước --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Giờ Bắt Đầu (*):</label>
+                            <input type="datetime-local" id="stStartTime" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Giờ Kết Thúc (*):</label>
+                            <input type="datetime-local" id="stEndTime" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Giá Vé Cơ Bản (VNĐ) (*):</label>
+                            <input type="number" id="stBasePrice" class="form-control" value="80000" min="0" step="5000" required>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 0.8rem; margin-top: 0.5rem;">
+                        <button type="submit" class="btn btn-primary" id="btnSubmitShowtime">
+                            ⚡ Lưu Suất Chiếu (Trigger Kiểm Tra)
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Bảng danh sách suất chiếu hiện có -->
+                <h4 style="margin-bottom: 0.8rem;">📅 Danh Sách Các Suất Chiếu Đã Lên Lịch Gần Đây:</h4>
+                <div class="table-responsive">
+                    <table class="staff-table">
+                        <thead>
+                            <tr>
+                                <th>Mã Suất</th>
+                                <th>Tên Phim</th>
+                                <th>Cụm Rạp</th>
+                                <th>Phòng Chiếu</th>
+                                <th>Bắt Đầu</th>
+                                <th>Kết Thúc</th>
+                                <th>Giá Vé Cơ Bản</th>
+                                <th>Vé Đã Bán</th>
+                                <th>Hành Động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staffShowtimesBody">
+                            <tr><td colspan="9" style="text-align: center;">Đang nạp danh sách suất chiếu...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 4: SOÁT VÉ / CHECK-IN TẠI QUẦY -->
+        <!-- ========================================================================= -->
+        <!-- TAB 4: SOÁT VÉ THEO HÓA ĐƠN -->
+        <div class="tab-pane" id="pane-checkin">
+            <div class="content-box">
+                <div class="box-header">
+                    <div>
+                        <h3 class="box-title">🧾 Soát Vé & Check-in Theo Mã Hóa Đơn</h3>
+                        <div class="box-subtitle">Chỉ áp dụng soát vé theo Mã Hóa Đơn (Ví dụ: 12, HD12, #HD12) để kiểm tra toàn bộ vé trong hóa đơn</div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 0.8rem; max-width: 600px; margin-bottom: 1.5rem;">
+                    <input type="text" id="checkInInput" placeholder="Nhập Mã hóa đơn của khách (VD: 15, HD15, #HD15)..." class="form-control" style="flex: 1;" onkeypress="if(event.key === 'Enter') handleSearchTicket()">
+                    <button class="btn btn-primary" onclick="handleSearchTicket()">🔍 Tra Cứu Hóa Đơn</button>
+                </div>
+
+                <div id="checkInResultBox">
+                    <div style="color: var(--text-muted); font-style: italic;">Vui lòng nhập Mã hóa đơn để bắt đầu soát vé...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 5: QUẢN LÝ PHÒNG CHIẾU & GHẾ HỎNG -->
+        <!-- ========================================================================= -->
+        <div class="tab-pane" id="pane-rooms">
+            <div class="content-box">
+                <div class="box-header">
+                    <div>
+                        <h3 class="box-title">💺 Quản Lý Phòng Chiếu & Cập Nhật Tình Trạng Ghế Hỏng</h3>
+                        <div class="box-subtitle">Click trực tiếp vào bất kỳ ghế nào để chuyển đổi tình trạng [Tốt 🟢] sang [Hỏng 🔴] để đưa vào bảo trì</div>
+                    </div>
+                    <div style="display: flex; gap: 0.8rem; align-items: center;">
+                        <select id="roomCinemaSelect" class="form-control" onchange="loadRoomsForSeatTab(this.value)">
+                            <option value="">-- Chọn Cụm Rạp --</option>
+                        </select>
+                        <select id="roomSelectTab" class="form-control" onchange="loadSeatsForStaff(this.value)">
+                            <option value="">-- Chọn Phòng Chiếu --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="roomMetaInfo" style="margin-bottom: 1rem; color: var(--text-muted); font-size: 0.95rem;"></div>
+
+                <div style="display: flex; gap: 1.5rem; justify-content: center; margin-bottom: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem;">
+                        <div style="width: 18px; height: 18px; background: #10b981; border-radius: 4px;"></div>
+                        <span>Ghế Tốt (Khả dụng)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem;">
+                        <div style="width: 18px; height: 18px; background: #ef4444; border-radius: 4px; border: 2px dashed #fca5a5;"></div>
+                        <span>Ghế Hỏng (Đang bảo trì / Không cho đặt)</span>
+                    </div>
+                </div>
+
+                <div id="staffSeatContainer" style="text-align: center; padding: 2rem; background: rgba(15,23,42,0.4); border-radius: 8px;">
+                    <div style="color: var(--text-muted);">Vui lòng chọn Cụm rạp và Phòng chiếu để xem sơ đồ ghế.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 6: QUẢN LÝ MÃ GIẢM GIÁ COUPON -->
+        <!-- ========================================================================= -->
+        <div class="tab-pane" id="pane-coupons">
+            <div class="content-box">
+                <div class="box-header">
+                    <div>
+                        <h3 class="box-title">🎁 Quản Lý Mã Khuyến Mãi / Voucher (Coupon)</h3>
+                        <div class="box-subtitle">Thêm mới chương trình ưu đãi, theo dõi số lượng đã dùng và kiểm soát hạn sử dụng</div>
+                    </div>
+                    <button class="btn btn-primary" onclick="openCouponAddModal()">+ Thêm Mã Giảm Giá Mới</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="staff-table">
+                        <thead>
+                            <tr>
+                                <th>Mã Voucher</th>
+                                <th>Tên Chương Trình</th>
+                                <th>Loại Giảm</th>
+                                <th>Mức Giảm</th>
+                                <th>Đơn Tối Thiểu</th>
+                                <th>Đã Dùng / Tổng</th>
+                                <th>Hạn Sử Dụng</th>
+                                <th>Trạng Thái</th>
+                                <th>Hành Động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staffCouponsBody">
+                            <tr><td colspan="9" style="text-align: center;">Đang tải danh sách coupon...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL THÊM / SỬA PHIM -->
+    <!-- ========================================================================= -->
+    <div class="staff-modal" id="modalMovie">
+        <div class="staff-modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; border-bottom: 1px solid var(--staff-border); padding-bottom: 0.6rem;">
+                <h3 style="margin: 0;" id="modalMovieTitle">🎬 Thêm Phim Mới</h3>
+                <button class="modal-close" onclick="closeMovieModal()">&times;</button>
+            </div>
+            <form id="formMovie" onsubmit="handleSaveMovie(event)">
+                <input type="hidden" id="editMovieId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tên Phim (*):</label>
+                        <input type="text" id="mTenPhim" class="form-control" required placeholder="Nhập tên phim...">
+                    </div>
+                    <div class="form-group">
+                        <label>Thời Lượng (Phút) (*):</label>
+                        <input type="number" id="mThoiLuong" class="form-control" required min="1" value="120">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Khởi Chiếu (*):</label>
+                        <input type="date" id="mNgayKhoiChieu" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Kết Thúc:</label>
+                        <input type="date" id="mNgayKetThuc" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Độ Tuổi (*):</label>
+                        <select id="mDoTuoi" class="form-control" required>
+                            <option value="0">T0 (Mọi lứa tuổi)</option>
+                            <option value="13" selected>T13 (Từ 13 tuổi)</option>
+                            <option value="16">T16 (Từ 16 tuổi)</option>
+                            <option value="18">T18 (Từ 18 tuổi)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Đạo Diễn:</label>
+                        <input type="text" id="mDaoDien" class="form-control" placeholder="Tên đạo diễn...">
+                    </div>
+                    <div class="form-group">
+                        <label>Diễn Viên:</label>
+                        <input type="text" id="mDienVien" class="form-control" placeholder="Danh sách diễn viên chính...">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Link Poster URL:</label>
+                    <input type="url" id="mPoster" class="form-control" placeholder="https://images.unsplash.com/...">
+                </div>
+                <div class="form-group">
+                    <label>Link Trailer (YouTube):</label>
+                    <input type="url" id="mTrailer" class="form-control" placeholder="https://www.youtube.com/watch?v=...">
+                </div>
+                <div class="form-group">
+                    <label>Nội Dung Mô Tả Phim (*):</label>
+                    <textarea id="mMoTa" class="form-control" rows="3" required placeholder="Tóm tắt cốt truyện phim..."></textarea>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 0.8rem; margin-top: 1.2rem;">
+                    <button type="button" class="btn btn-outline" onclick="closeMovieModal()">Hủy</button>
+                    <button type="submit" class="btn btn-primary" id="btnSaveMovieSubmit">Lưu Phim</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL THÊM COUPON -->
+    <!-- ========================================================================= -->
+    <div class="staff-modal" id="modalCoupon">
+        <div class="staff-modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; border-bottom: 1px solid var(--staff-border); padding-bottom: 0.6rem;">
+                <h3 style="margin: 0;">🎁 Tạo Mã Voucher Mới</h3>
+                <button class="modal-close" onclick="closeCouponModal()">&times;</button>
+            </div>
+            <form id="formCoupon" onsubmit="handleSaveCoupon(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Mã Voucher (Không dấu, viết hoa) (*):</label>
+                        <input type="text" id="cpCode" class="form-control" required placeholder="VD: PINEMA2026, SUMMER50">
+                    </div>
+                    <div class="form-group">
+                        <label>Tên Chương Trình (*):</label>
+                        <input type="text" id="cpName" class="form-control" required placeholder="VD: Khuyến mãi mừng hè">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Loại Giảm Giá (*):</label>
+                        <select id="cpType" class="form-control" required onchange="handleCouponTypeChange(this.value)">
+                            <option value="Số tiền">Số tiền (VNĐ)</option>
+                            <option value="Phần trăm">Phần trăm (%)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label id="cpValueLabel">Giá Trị Giảm (VNĐ) (*):</label>
+                        <input type="number" id="cpValue" class="form-control" required min="1" placeholder="20000">
+                    </div>
+                    <div class="form-group">
+                        <label>Giảm Tối Đa (VNĐ):</label>
+                        <input type="number" id="cpMaxDiscount" class="form-control" placeholder="Để trống nếu không giới hạn">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Đơn Hàng Tối Thiểu (VNĐ):</label>
+                        <input type="number" id="cpMinOrder" class="form-control" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Số Lượng Phát Hành (*):</label>
+                        <input type="number" id="cpQuantity" class="form-control" required min="1" value="100">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Thời Gian Bắt Đầu (*):</label>
+                        <input type="datetime-local" id="cpStart" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Thời Gian Kết Thúc (*):</label>
+                        <input type="datetime-local" id="cpEnd" class="form-control" required>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 0.8rem; margin-top: 1.2rem;">
+                    <button type="button" class="btn btn-outline" onclick="closeCouponModal()">Hủy</button>
+                    <button type="submit" class="btn btn-primary" id="btnSaveCouponSubmit">Tạo Voucher</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPT ĐIỀU KHIỂN GIAO DIỆN NHÂN VIÊN -->
+    <script>
+        // Kiểm tra quyền nhân viên quản lý
+        function checkStaffAuth() {
+            try {
+                const userJson = localStorage.getItem('user');
+                if (!userJson) {
+                    alert('⚠️ Bạn chưa đăng nhập! Vui lòng đăng nhập bằng tài khoản Nhân viên để truy cập phân hệ này.');
+                    window.location.href = '/login.html?redirect=/staff.html';
+                    return null;
+                }
+                const user = JSON.parse(userJson);
+                if (user.role !== 'staff') {
+                    alert('⚠️ Tài khoản của bạn không phải nhân viên quản lý!');
+                    window.location.href = '/';
+                    return null;
+                }
+                // Nếu là nhân viên Bán vé -> Chuyển hướng sang phân hệ Bán vé & Soát vé
+                if (user.roleType === 'clerk' || (user.chucVu && !user.chucVu.includes('Quản lý'))) {
+                    alert('👋 Xin chào ' + (user.hoTen || '') + '! Bạn đang đăng nhập bằng tài khoản Nhân viên Bán vé, hệ thống sẽ điều hướng bạn sang Phân Hệ Bán Vé & Soát Vé.');
+                    window.location.href = '/clerk.html';
+                    return null;
+                }
+
+                document.getElementById('staffNameDisplay').textContent = user.hoTen || user.HoTen || 'Nhân viên';
+                document.getElementById('staffRoleDisplay').textContent = user.chucVu || user.ChucVu || 'Quản lý';
+                return user;
+            } catch(e) {
+                return null;
+            }
+        }
+
+        const currentStaff = checkStaffAuth();
+
+        document.getElementById('btnStaffLogout')?.addEventListener('click', () => {
+            localStorage.removeItem('user');
+            window.location.href = '/login.html';
+        });
+
+        // Điều hướng các Tabs
+        const tabBtns = document.querySelectorAll('.staff-tab-btn');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetTab = btn.getAttribute('data-tab');
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabPanes.forEach(p => p.classList.remove('active'));
+
+                btn.classList.add('active');
+                document.getElementById('pane-' + targetTab)?.classList.add('active');
+
+                // Tải dữ liệu tương ứng khi mở tab
+                if (targetTab === 'reports') loadReportsData();
+                if (targetTab === 'movies') loadStaffMovies();
+                if (targetTab === 'showtimes') initShowtimesTab();
+                if (targetTab === 'rooms') initRoomsTab();
+                if (targetTab === 'coupons') loadStaffCoupons();
+            });
+        });
+
+        // ==========================================
+        // 1. TAB BÁO CÁO & THỐNG KÊ (Q5, Q6, Q7, Q9, Q10)
+        // ==========================================
+        async function loadReportsData() {
+            // Tải tổng quan
+            try {
+                const resOv = await fetch('/api/staff/overview');
+                const ovData = await resOv.json();
+                if (ovData.success) {
+                    const d = ovData.data;
+                    document.getElementById('mTotalMovies').textContent = d.TongPhim;
+                    document.getElementById('mUpcomingShowtimes').textContent = d.SuatChieuSapToi;
+                    document.getElementById('mTotalSoldTickets').textContent = d.TongVeDaBan;
+                    document.getElementById('mTotalRevenue').textContent = Number(d.TongDoanhThu || 0).toLocaleString('vi-VN') + 'đ';
+                    document.getElementById('mBrokenSeats').textContent = d.TongGheHong;
+                    document.getElementById('mActiveCoupons').textContent = d.CouponKhaDung;
+                }
+            } catch(e) { console.error('Lỗi nạp overview:', e); }
+
+            // Tải 5 câu truy vấn BTL
+            try {
+                const res = await fetch('/api/staff/reports');
+                const result = await res.json();
+                if (!result.success) return;
+                const d = result.data;
+
+                // Q6: Doanh thu theo cụm rạp
+                const bQ6 = document.getElementById('bodyQ6');
+                bQ6.innerHTML = d.q6_CinemaRevenue.map(r => `
+                    <tr>
+                        <td><strong>#R${r.MaRap}</strong></td>
+                        <td><strong>🏛️ ${escapeHtml(r.TenRap)}</strong></td>
+                        <td>${escapeHtml(r.DiaChi || 'Hà Nội')}</td>
+                        <td><span class="badge-status active">${escapeHtml(r.Tinh || 'Hà Nội')}</span></td>
+                        <td><strong>${r.SoVeDaBan}</strong> vé</td>
+                        <td style="color: #10b981; font-weight: 700;">${Number(r.DoanhThu).toLocaleString('vi-VN')} VNĐ</td>
+                    </tr>
+                `).join('');
+
+                // Q5: Top khách hàng
+                const bQ5 = document.getElementById('bodyQ5');
+                bQ5.innerHTML = d.q5_TopCustomers.map((c, i) => `
+                    <tr>
+                        <td><span class="badge-status ${i < 3 ? 'active' : ''}">#${i + 1}</span></td>
+                        <td><strong>${escapeHtml(c.HoTen)}</strong></td>
+                        <td>${escapeHtml(c.SoDienThoai)}</td>
+                        <td>${c.SoHoaDon} đơn (${c.TongSoVe} vé)</td>
+                        <td style="color: #f59e0b; font-weight: 700;">${Number(c.TongChiTieu).toLocaleString('vi-VN')}đ</td>
+                    </tr>
+                `).join('');
+
+                // Q7: Phim trên mức trung bình
+                const bQ7 = document.getElementById('bodyQ7');
+                bQ7.innerHTML = d.q7_AboveAverageMovies.map(m => `
+                    <tr>
+                        <td>#${m.MaPhim}</td>
+                        <td><strong>${escapeHtml(m.TenPhim)}</strong></td>
+                        <td><span class="badge-status active">T${m.DoTuoi || 13}</span></td>
+                        <td style="color: #3b82f6; font-weight: 700;">${m.SoVeBan} vé</td>
+                        <td style="color: var(--text-muted);">${m.MucTrungBinh} vé</td>
+                    </tr>
+                `).join('');
+
+                // Q9: Tình trạng ghế theo phòng
+                const bQ9 = document.getElementById('bodyQ9');
+                bQ9.innerHTML = d.q9_RoomSeatHealth.map(p => `
+                    <tr>
+                        <td>${escapeHtml(p.TenRap)}</td>
+                        <td><strong>${escapeHtml(p.TenPhong)}</strong></td>
+                        <td><span class="badge-status active">${escapeHtml(p.CongNgheHoTro || '2D')}</span></td>
+                        <td>${p.TongGhe}</td>
+                        <td style="color: #10b981; font-weight: 600;">${p.GheTot}</td>
+                        <td style="color: ${p.GheHong > 0 ? '#ef4444' : 'var(--text-muted)'}; font-weight: 600;">${p.GheHong}</td>
+                        <td>${p.TyLeHong}%</td>
+                    </tr>
+                `).join('');
+
+                // Q10: Điểm đánh giá trung bình
+                const bQ10 = document.getElementById('bodyQ10');
+                bQ10.innerHTML = d.q10_MovieRatingAverage.map(m => {
+                    const stars = '⭐'.repeat(Math.round(m.DiemTrungBinh || 5));
+                    return `
+                        <tr>
+                            <td>#${m.MaPhim}</td>
+                            <td><strong>${escapeHtml(m.TenPhim)}</strong></td>
+                            <td>${m.SoDanhGia} lượt</td>
+                            <td style="color: #f59e0b; font-weight: 700;">${m.DiemTrungBinh} / 5</td>
+                            <td>${stars}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch(e) { console.error('Lỗi nạp báo cáo BTL:', e); }
+        }
+
+        // ==========================================
+        // 2. TAB QUẢN LÝ PHIM
+        // ==========================================
+        let allStaffMovies = [];
+        async function loadStaffMovies() {
+            const body = document.getElementById('staffMoviesBody');
+            body.innerHTML = '<tr><td colspan="8" style="text-align: center;">Đang tải danh sách phim...</td></tr>';
+            try {
+                const res = await fetch('/api/movies');
+                const data = await res.json();
+                if (data.success) {
+                    allStaffMovies = data.data;
+                    renderStaffMovies(allStaffMovies);
+                }
+            } catch(e) {
+                body.innerHTML = '<tr><td colspan="8" style="color: red; text-align: center;">Lỗi kết nối máy chủ!</td></tr>';
+            }
+        }
+
+        function renderStaffMovies(movies) {
+            const body = document.getElementById('staffMoviesBody');
+            if (movies.length === 0) {
+                body.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Không tìm thấy phim phù hợp.</td></tr>';
+                return;
+            }
+            body.innerHTML = movies.map(m => `
+                <tr>
+                    <td><strong>#${m.MaPhim}</strong></td>
+                    <td>
+                        <img src="${escapeHtml(m.Poster || '')}" style="width: 45px; height: 60px; object-fit: cover; border-radius: 4px;" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500'">
+                    </td>
+                    <td>
+                        <strong>${escapeHtml(m.TenPhim)}</strong>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">${escapeHtml(m.DaoDien ? 'ĐD: ' + m.DaoDien : '')}</div>
+                    </td>
+                    <td>${m.ThoiLuong} phút</td>
+                    <td><span class="badge-status active">T${m.DoTuoi || 13}</span></td>
+                    <td>${escapeHtml((m.TheLoai || []).join(', '))}</td>
+                    <td>${m.ThoiDiemKhoiChieu ? new Date(m.ThoiDiemKhoiChieu).toLocaleDateString('vi-VN') : '---'}</td>
+                    <td>
+                        <div style="display: flex; gap: 0.4rem;">
+                            <button class="btn btn-outline btn-sm" onclick="openMovieEditModal(${m.MaPhim})">Sửa</button>
+                            <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239,68,68,0.4);" onclick="handleDeleteMovie(${m.MaPhim}, '${escapeHtml(m.TenPhim)}')">Xóa</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        document.getElementById('staffMovieSearch')?.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase().trim();
+            const filtered = allStaffMovies.filter(m => m.TenPhim && m.TenPhim.toLowerCase().includes(term));
+            renderStaffMovies(filtered);
+        });
+
+        function openMovieAddModal() {
+            document.getElementById('modalMovieTitle').textContent = '🎬 Thêm Phim Mới';
+            document.getElementById('editMovieId').value = '';
+            document.getElementById('formMovie').reset();
+            document.getElementById('modalMovie').classList.add('active');
+        }
+
+        function openMovieEditModal(movieId) {
+            const m = allStaffMovies.find(x => x.MaPhim === movieId);
+            if (!m) return;
+            document.getElementById('modalMovieTitle').textContent = `🎬 Sửa Phim: #${m.MaPhim}`;
+            document.getElementById('editMovieId').value = m.MaPhim;
+            document.getElementById('mTenPhim').value = m.TenPhim || '';
+            document.getElementById('mThoiLuong').value = m.ThoiLuong || 120;
+            document.getElementById('mNgayKhoiChieu').value = m.ThoiDiemKhoiChieu ? m.ThoiDiemKhoiChieu.substring(0, 10) : '';
+            document.getElementById('mNgayKetThuc').value = m.ThoiDiemKetThuc ? m.ThoiDiemKetThuc.substring(0, 10) : '';
+            document.getElementById('mDoTuoi').value = m.DoTuoi || 13;
+            document.getElementById('mDaoDien').value = m.DaoDien || '';
+            document.getElementById('mDienVien').value = m.DienVien || '';
+            document.getElementById('mPoster').value = m.Poster || '';
+            document.getElementById('mTrailer').value = m.Trailer || '';
+            document.getElementById('mMoTa').value = m.MoTa || '';
+            document.getElementById('modalMovie').classList.add('active');
+        }
+
+        function closeMovieModal() {
+            document.getElementById('modalMovie').classList.remove('active');
+        }
+
+        async function handleSaveMovie(e) {
+            e.preventDefault();
+            const editId = document.getElementById('editMovieId').value;
+            const payload = {
+                tenPhim: document.getElementById('mTenPhim').value.trim(),
+                thoiLuong: parseInt(document.getElementById('mThoiLuong').value),
+                thoiDiemKhoiChieu: document.getElementById('mNgayKhoiChieu').value,
+                thoiDiemKetThuc: document.getElementById('mNgayKetThuc').value || null,
+                doTuoi: parseInt(document.getElementById('mDoTuoi').value),
+                daoDien: document.getElementById('mDaoDien').value.trim(),
+                dienVien: document.getElementById('mDienVien').value.trim(),
+                poster: document.getElementById('mPoster').value.trim(),
+                trailer: document.getElementById('mTrailer').value.trim(),
+                moTa: document.getElementById('mMoTa').value.trim()
+            };
+
+            const btn = document.getElementById('btnSaveMovieSubmit');
+            btn.disabled = true;
+            btn.textContent = 'Đang lưu...';
+
+            try {
+                const url = editId ? `/api/staff/movies/${editId}` : '/api/staff/movies';
+                const method = editId ? 'PUT' : 'POST';
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('🎉 ' + data.message);
+                    closeMovieModal();
+                    loadStaffMovies();
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            } catch(e) {
+                alert('Không thể kết nối máy chủ!');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Lưu Phim';
+            }
+        }
+
+        async function handleDeleteMovie(id, title) {
+            if (!confirm(`Bạn có chắc chắn muốn xóa phim "${title}" (#${id})?`)) return;
+            try {
+                const res = await fetch(`/api/staff/movies/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                    loadStaffMovies();
+                } else {
+                    alert('❌ Không thể xóa: ' + data.message);
+                }
+            } catch(e) { alert('Lỗi kết nối máy chủ!'); }
+        }
+
+        // ==========================================
+        // 3. TAB QUẢN LÝ SUẤT CHIẾU & TRIGGER CHECK
+        // ==========================================
+        let allCinemasCache = [];
+        async function initShowtimesTab() {
+            // Nạp Phim vào Select
+            try {
+                const mRes = await fetch('/api/movies');
+                const mData = await mRes.json();
+                const mSel = document.getElementById('stMovieSelect');
+                if (mData.success) {
+                    mSel.innerHTML = '<option value="">-- Chọn Phim Chiếu --</option>' +
+                        mData.data.map(m => `<option value="${m.MaPhim}">🎬 ${escapeHtml(m.TenPhim)} (${m.ThoiLuong}p)</option>`).join('');
+                }
+
+                // Nạp Cụm Rạp
+                const cRes = await fetch('/api/cinemas');
+                const cData = await cRes.json();
+                const cSel = document.getElementById('stCinemaSelect');
+                if (cData.success) {
+                    allCinemasCache = cData.data;
+                    cSel.innerHTML = '<option value="">-- Chọn Cụm Rạp --</option>' +
+                        allCinemasCache.map(c => `<option value="${c.MaRap}">🏛️ ${escapeHtml(c.TenRap)}</option>`).join('');
+                }
+
+                loadStaffShowtimesList();
+            } catch(e) { console.error(e); }
+        }
+
+        async function handleCinemaChange(cinemaId) {
+            const rSel = document.getElementById('stRoomSelect');
+            if (!cinemaId) {
+                rSel.innerHTML = '<option value="">-- Vui lòng chọn rạp trước --</option>';
+                return;
+            }
+            try {
+                const res = await fetch(`/api/cinemas/${cinemaId}/rooms`);
+                const data = await res.json();
+                if (data.success) {
+                    rSel.innerHTML = '<option value="">-- Chọn Phòng Chiếu --</option>' +
+                        data.data.map(r => `<option value="${r.MaPhong}">🚪 ${escapeHtml(r.TenPhong)} (${r.CongNgheHoTro || '2D'} - ${r.SoLuongGhe} ghế)</option>`).join('');
+                }
+            } catch(e) {}
+        }
+
+        async function loadStaffShowtimesList() {
+            const body = document.getElementById('staffShowtimesBody');
+            body.innerHTML = '<tr><td colspan="9" style="text-align: center;">Đang nạp suất chiếu...</td></tr>';
+            try {
+                const res = await fetch('/api/staff/showtimes');
+                const data = await res.json();
+                if (data.success && data.data) {
+                    if (data.data.length === 0) {
+                        body.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--text-muted);">Chưa có suất chiếu nào được tạo.</td></tr>';
+                        return;
+                    }
+                    body.innerHTML = data.data.map(st => `
+                        <tr>
+                            <td><strong>#${st.MaSuat}</strong></td>
+                            <td><strong>${escapeHtml(st.TenPhim)}</strong></td>
+                            <td>${escapeHtml(st.TenRap)}</td>
+                            <td>${escapeHtml(st.TenPhong)} (${st.CongNgheHoTro || '2D'})</td>
+                            <td><span style="color: #38bdf8; font-weight: 600;">${st.GioBatDau}</span></td>
+                            <td>${st.GioKetThuc}</td>
+                            <td>${Number(st.GiaVeCoBan).toLocaleString('vi-VN')}đ</td>
+                            <td><strong>${st.SoVeDaBan}</strong> / ${st.TongGhe}</td>
+                            <td>
+                                <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239,68,68,0.4);" onclick="handleDeleteShowtime(${st.MaSuat})">
+                                    Xóa
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch(e) {
+                body.innerHTML = '<tr><td colspan="9" style="color: red; text-align: center;">Lỗi tải suất chiếu!</td></tr>';
+            }
+        }
+
+        async function handleCreateShowtime(e) {
+            e.preventDefault();
+            const alertBox = document.getElementById('triggerAlert');
+            alertBox.style.display = 'none';
+
+            const payload = {
+                maPhim: parseInt(document.getElementById('stMovieSelect').value),
+                maPhong: parseInt(document.getElementById('stRoomSelect').value),
+                gioBatDau: document.getElementById('stStartTime').value,
+                gioKetThuc: document.getElementById('stEndTime').value,
+                giaVeCoBan: parseFloat(document.getElementById('stBasePrice').value)
+            };
+
+            const btn = document.getElementById('btnSubmitShowtime');
+            btn.disabled = true;
+            btn.textContent = 'Đang kiểm tra Trigger...';
+
+            try {
+                const res = await fetch('/api/staff/showtimes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('🎉 ' + data.message);
+                    loadStaffShowtimesList();
+                } else {
+                    // Nếu kích hoạt Trigger trg_LichChieu_KhongChongCheo
+                    alertBox.textContent = data.message;
+                    alertBox.style.display = 'block';
+                    alertBox.scrollIntoView({ behavior: 'smooth' });
+                }
+            } catch(e) {
+                alert('Không thể kết nối máy chủ!');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '⚡ Lưu Suất Chiếu (Trigger Kiểm Tra)';
+            }
+        }
+
+        async function handleDeleteShowtime(id) {
+            if (!confirm(`Bạn có chắc chắn muốn xóa suất chiếu #${id}?`)) return;
+            try {
+                const res = await fetch(`/api/staff/showtimes/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                    loadStaffShowtimesList();
+                } else {
+                    alert('❌ Không thể xóa: ' + data.message);
+                }
+            } catch(e) { alert('Lỗi kết nối máy chủ!'); }
+        }
+
+        // ==========================================
+        // 4. TAB SOÁT VÉ / CHECK-IN TẠI QUẦY
+        // ==========================================
+        async function handleSearchTicket() {
+            const val = document.getElementById('checkInInput').value.trim();
+            const box = document.getElementById('checkInResultBox');
+            if (!val) return alert('Vui lòng nhập Mã hóa đơn để soát vé!');
+
+            const cleanId = val.replace(/^#|HD/gi, '');
+            if (!/^\d+$/.test(cleanId) || parseInt(cleanId) <= 0) {
+                alert('⚠️ Hệ thống chỉ nhận diện soát vé theo Mã Hóa Đơn (Ví dụ: 12, HD12, #HD12)!\nKhông hỗ trợ tra cứu theo SĐT hay mã vé lẻ.');
+                return;
+            }
+
+            box.innerHTML = '<div style="color: var(--text-muted);">⏳ Đang tra cứu hóa đơn #' + cleanId + '...</div>';
+
+            try {
+                const res = await fetch(`/api/staff/checkin/search?invoiceId=${encodeURIComponent(cleanId)}`);
+                const data = await res.json();
+
+                if (!data.success || !data.data || data.data.length === 0) {
+                    box.innerHTML = `<div style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); border-radius: 8px; padding: 1.2rem; color: #fca5a5;">
+                        ❌ ${data.message || 'Không tìm thấy hóa đơn phù hợp. Vui lòng kiểm tra lại!'}
+                    </div>`;
+                    return;
+                }
+
+                box.innerHTML = data.data.map(t => {
+                    const isChecked = !!t.DaSoatVe;
+                    const isPaid = t.TrangThaiVe === 'Đã thanh toán';
+
+                    return `
+                        <div class="checkin-card">
+                            <img src="${escapeHtml(t.Poster || '')}" class="checkin-poster" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500'">
+                            <div class="checkin-details">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                                    <h3 style="margin: 0; color: #fff;">${escapeHtml(t.TenPhim)}</h3>
+                                    <span class="badge-status ${isChecked ? 'checked' : (isPaid ? 'active' : 'expired')}">
+                                        ● ${isChecked ? 'ĐÃ SOÁT VÉ' : escapeHtml(t.TrangThaiVe)}
+                                    </span>
+                                </div>
+                                <div class="checkin-grid">
+                                    <div>🎟️ Mã Vé: <strong>#VE${t.MaVe}</strong></div>
+                                    <div>🧾 Mã Hóa Đơn: <strong>#HD${t.MaHoaDon}</strong></div>
+                                    <div>👤 Khách Hàng: <strong>${escapeHtml(t.TenKhachHang)}</strong></div>
+                                    <div>📞 Số ĐT: <strong>${escapeHtml(t.SDTKhach)}</strong></div>
+                                    <div>🏛️ Cụm Rạp: <strong>${escapeHtml(t.TenRap)}</strong></div>
+                                    <div>🚪 Phòng Chiếu: <strong>${escapeHtml(t.TenPhong)}</strong></div>
+                                    <div>💺 Ghế Ngồi: <strong style="color: #f59e0b; font-size: 1.1rem;">${t.MaGheText}</strong> (${escapeHtml(t.LoaiGhe || 'Đơn')})</div>
+                                    <div>⏰ Giờ Chiếu: <strong>${t.GioBatDau}</strong></div>
+                                </div>
+                                ${isChecked ? `
+                                    <div style="margin-top: 0.8rem; background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.4); border-radius: 6px; padding: 0.6rem 0.8rem; font-size: 0.85rem; color: #93c5fd;">
+                                        ℹ️ Vé này đã được nhân viên soát vé lúc: <strong>${t.ThoiDiemSoatVe}</strong>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div>
+                                ${!isChecked && isPaid ? `
+                                    <button class="btn btn-primary" onclick="confirmTicketCheckIn(${t.MaVe})" style="padding: 0.75rem 1.4rem; font-size: 1rem;">
+                                        ✅ Cho Khách Vào Rạp
+                                    </button>
+                                ` : (isChecked ? `
+                                    <button class="btn btn-outline" disabled style="opacity: 0.6; cursor: not-allowed;">
+                                        Đã Hoàn Tất Soát
+                                    </button>
+                                ` : `
+                                    <button class="btn btn-outline" disabled style="color: #ef4444; border-color: #ef4444; opacity: 0.6;">
+                                        Vé Chưa Thanh Toán
+                                    </button>
+                                `)}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch(e) {
+                box.innerHTML = '<div style="color: red;">Lỗi kết nối máy chủ tra cứu vé!</div>';
+            }
+        }
+
+        async function confirmTicketCheckIn(maVe) {
+            try {
+                const res = await fetch('/api/staff/checkin/confirm', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ maVe })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('🎉 ' + data.message);
+                    handleSearchTicket(); // Cập nhật lại giao diện
+                    loadReportsData();
+                } else {
+                    alert(data.message);
+                }
+            } catch(e) { alert('Lỗi kết nối soát vé!'); }
+        }
+
+        // ==========================================
+        // 5. TAB QUẢN LÝ PHÒNG CHIẾU & GHẾ HỎNG
+        // ==========================================
+        async function initRoomsTab() {
+            try {
+                const res = await fetch('/api/cinemas');
+                const data = await res.json();
+                const sel = document.getElementById('roomCinemaSelect');
+                if (data.success) {
+                    sel.innerHTML = '<option value="">-- Chọn Cụm Rạp --</option>' +
+                        data.data.map(c => `<option value="${c.MaRap}">🏛️ ${escapeHtml(c.TenRap)}</option>`).join('');
+                }
+            } catch(e) {}
+        }
+
+        async function loadRoomsForSeatTab(cinemaId) {
+            const rSel = document.getElementById('roomSelectTab');
+            if (!cinemaId) {
+                rSel.innerHTML = '<option value="">-- Chọn Phòng Chiếu --</option>';
+                return;
+            }
+            try {
+                const res = await fetch(`/api/cinemas/${cinemaId}/rooms`);
+                const data = await res.json();
+                if (data.success) {
+                    rSel.innerHTML = '<option value="">-- Chọn Phòng Chiếu --</option>' +
+                        data.data.map(r => `<option value="${r.MaPhong}">🚪 ${escapeHtml(r.TenPhong)} (${r.CongNgheHoTro || '2D'})</option>`).join('');
+                }
+            } catch(e) {}
+        }
+
+        async function loadSeatsForStaff(roomId) {
+            const container = document.getElementById('staffSeatContainer');
+            const meta = document.getElementById('roomMetaInfo');
+            if (!roomId) {
+                container.innerHTML = '<div style="color: var(--text-muted);">Vui lòng chọn Phòng chiếu.</div>';
+                meta.textContent = '';
+                return;
+            }
+
+            container.innerHTML = '<div>Đang tải sơ đồ ghế phòng...</div>';
+            try {
+                const res = await fetch(`/api/staff/rooms/${roomId}/seats`);
+                const data = await res.json();
+                if (!data.success) {
+                    container.innerHTML = '<div style="color: red;">Không thể tải danh sách ghế!</div>';
+                    return;
+                }
+
+                const room = data.room;
+                const seats = data.seats;
+                meta.innerHTML = `<strong>${escapeHtml(room.TenRap)} - ${escapeHtml(room.TenPhong)}</strong> | Công nghệ: <span class="badge-status active">${escapeHtml(room.CongNgheHoTro || '2D')}</span> | Tổng số: <strong>${seats.length} ghế</strong> (Click vào ghế để chuyển trạng thái Tốt 🟢 / Hỏng 🔴)`;
+
+                let maxCol = 1;
+                seats.forEach(s => { if (s.Cot > maxCol) maxCol = s.Cot; });
+
+                container.innerHTML = `
+                    <div style="background: rgba(255,255,255,0.05); padding: 0.5rem 2rem; border-radius: 8px; margin-bottom: 1.5rem; display: inline-block; font-weight: 600; color: var(--text-muted); letter-spacing: 2px;">
+                        📺 MÀN HÌNH CHIẾU PHIM
+                    </div>
+                    <div class="staff-seat-grid" style="grid-template-columns: repeat(${maxCol}, 44px);">
+                        ${seats.map(s => {
+                            const isGood = s.TinhTrangVatLy === 'Tốt';
+                            return `
+                                <div class="staff-seat-cell ${isGood ? 'seat-good' : 'seat-broken'}" 
+                                     onclick="toggleSeatHealth(${s.MaGhe}, '${isGood ? 'Hỏng' : 'Tốt'}', '${s.Hang}${s.Cot}', ${roomId})"
+                                     title="Ghế ${s.Hang}${s.Cot} (${s.TinhTrangVatLy}). Click để chuyển sang ${isGood ? 'Hỏng' : 'Tốt'}">
+                                    <span>${s.Hang}${s.Cot}</span>
+                                    <span style="font-size: 0.6rem; opacity: 0.9;">${isGood ? 'TỐT' : 'HỎNG'}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            } catch(e) {
+                container.innerHTML = '<div style="color: red;">Lỗi kết nối máy chủ!</div>';
+            }
+        }
+
+        async function toggleSeatHealth(maGhe, newStatus, seatCode, roomId) {
+            try {
+                const res = await fetch('/api/staff/seats/status', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ maGhe, tinhTrangVatLy: newStatus })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    loadSeatsForStaff(roomId);
+                    loadReportsData();
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            } catch(e) { alert('Lỗi kết nối cập nhật ghế!'); }
+        }
+
+        // ==========================================
+        // 6. TAB QUẢN LÝ MÃ GIẢM GIÁ COUPON
+        // ==========================================
+        async function loadStaffCoupons() {
+            const body = document.getElementById('staffCouponsBody');
+            body.innerHTML = '<tr><td colspan="9" style="text-align: center;">Đang nạp voucher...</td></tr>';
+            try {
+                const res = await fetch('/api/staff/coupons');
+                const data = await res.json();
+                if (data.success && data.data) {
+                    body.innerHTML = data.data.map(c => `
+                        <tr>
+                            <td><strong style="color: #f59e0b;">${escapeHtml(c.MaCoupon)}</strong></td>
+                            <td><strong>${escapeHtml(c.TenChuongTrinh)}</strong></td>
+                            <td><span class="badge-status active">${escapeHtml(c.LoaiGiamGia)}</span></td>
+                            <td>${c.LoaiGiamGia === 'Phần trăm' ? c.GiaTriGiam + '%' : Number(c.GiaTriGiam).toLocaleString('vi-VN') + 'đ'}</td>
+                            <td>${Number(c.GiaTriHoaDonToiThieu || 0).toLocaleString('vi-VN')}đ</td>
+                            <td><strong>${c.SoLuongDaDung}</strong> / ${c.SoLuong}</td>
+                            <td>${c.ThoiGianKetThuc || 'Vô thời hạn'}</td>
+                            <td><span class="badge-status ${c.TrangThaiHienTai === 'Đang kích hoạt' ? 'active' : 'expired'}">${c.TrangThaiHienTai}</span></td>
+                            <td>
+                                <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239,68,68,0.4);" onclick="handleDeleteCoupon('${escapeHtml(c.MaCoupon)}')">
+                                    Xóa
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch(e) {
+                body.innerHTML = '<tr><td colspan="9" style="color: red; text-align: center;">Lỗi tải voucher!</td></tr>';
+            }
+        }
+
+        function openCouponAddModal() {
+            document.getElementById('formCoupon').reset();
+            document.getElementById('modalCoupon').classList.add('active');
+        }
+
+        function closeCouponModal() {
+            document.getElementById('modalCoupon').classList.remove('active');
+        }
+
+        function handleCouponTypeChange(val) {
+            document.getElementById('cpValueLabel').textContent = val === 'Phần trăm' ? 'Giá Trị Giảm (%) (*):' : 'Giá Trị Giảm (VNĐ) (*):';
+        }
+
+        async function handleSaveCoupon(e) {
+            e.preventDefault();
+            const payload = {
+                maCoupon: document.getElementById('cpCode').value.trim(),
+                tenChuongTrinh: document.getElementById('cpName').value.trim(),
+                loaiGiamGia: document.getElementById('cpType').value,
+                giaTriGiam: parseFloat(document.getElementById('cpValue').value),
+                giamToiDa: document.getElementById('cpMaxDiscount').value ? parseFloat(document.getElementById('cpMaxDiscount').value) : null,
+                giaTriHoaDonToiThieu: parseFloat(document.getElementById('cpMinOrder').value || 0),
+                soLuong: parseInt(document.getElementById('cpQuantity').value),
+                thoiGianBatDau: document.getElementById('cpStart').value,
+                thoiGianKetThuc: document.getElementById('cpEnd').value
+            };
+
+            const btn = document.getElementById('btnSaveCouponSubmit');
+            btn.disabled = true;
+            btn.textContent = 'Đang tạo...';
+
+            try {
+                const res = await fetch('/api/staff/coupons', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('🎉 ' + data.message);
+                    closeCouponModal();
+                    loadStaffCoupons();
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            } catch(e) {
+                alert('Không thể kết nối máy chủ!');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Tạo Voucher';
+            }
+        }
+
+        async function handleDeleteCoupon(code) {
+            if (!confirm(`Bạn có chắc chắn muốn xóa mã voucher "${code}"?`)) return;
+            try {
+                const res = await fetch(`/api/staff/coupons/${code}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                    loadStaffCoupons();
+                } else {
+                    alert('❌ Không thể xóa: ' + data.message);
+                }
+            } catch(e) { alert('Lỗi kết nối máy chủ!'); }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        // Khởi động trang báo cáo đầu tiên
+        loadReportsData();
+    </script>
+</body>
+</html>
